@@ -4,7 +4,7 @@ import 'package:screenshot/screenshot.dart';
 import 'package:flutter/services.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class SController extends GetxController {
@@ -13,10 +13,13 @@ class SController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    print("SController initialized");
+    final capturedImage = await screenshotController.capture();
+    print(capturedImage); // 여기서 이미지 아이디값을 받아온다
     // 스크린샷 감지 시작
     startScreenshotDetection();
   }
+
+  // 펑션 하나 만들고 걸러주기
 
   static const platform = MethodChannel('screenshot_detector');
 
@@ -73,7 +76,8 @@ class SController extends GetxController {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
+  final screenshotController = Get.put(SController());
 
   @override
   Widget build(BuildContext context) {
