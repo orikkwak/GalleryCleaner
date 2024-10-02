@@ -30,6 +30,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  get: ^4.6.5
+  http: ^0.13.3
+  # 기타 패키지
 
 
   # The following adds the Cupertino Icons font to your application.
