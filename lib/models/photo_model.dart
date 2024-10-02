@@ -2,36 +2,36 @@
 
 class Photo {
   final String id;
-  final String title;
-  final String imageUrl;
-  final String description;
+  final String path;
   final DateTime createdAt;
+  final bool isCaptured;
+  final String? category;
 
   Photo({
     required this.id,
-    required this.title,
-    required this.imageUrl,
-    required this.description,
+    required this.path,
     required this.createdAt,
+    required this.isCaptured,
+    this.category,
   });
 
   factory Photo.fromJson(Map<String, dynamic> json) {
     return Photo(
       id: json['id'],
-      title: json['title'],
-      imageUrl: json['imageUrl'],
-      description: json['description'],
+      path: json['path'],
       createdAt: DateTime.parse(json['createdAt']),
+      isCaptured: json['isCaptured'],
+      category: json['category'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'title': title,
-      'imageUrl': imageUrl,
-      'description': description,
+      'path': path,
       'createdAt': createdAt.toIso8601String(),
+      'isCaptured': isCaptured,
+      'category': category,
     };
   }
 }
