@@ -1,7 +1,6 @@
 // getlery/lib/views/photo_view.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:photo_view/photo_view.dart';
 
 class PhotoViewScreen extends StatelessWidget {
   final File photoFile;
@@ -12,17 +11,12 @@ class PhotoViewScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Photo View"),
+        title: const Text('Photo View'),
       ),
-      body: Center(
-        child: PhotoView(
-          imageProvider: FileImage(photoFile),
-          backgroundDecoration: BoxDecoration(
-            color: Theme.of(context).canvasColor,
-          ),
-          minScale: PhotoViewComputedScale.contained * 0.8,
-          maxScale: PhotoViewComputedScale.covered * 2,
-        ),
+      body: PhotoView(
+        imageProvider: FileImage(photoFile),
+        minScale: PhotoViewComputedScale.contained * 0.5,
+        maxScale: PhotoViewComputedScale.covered * 2.0,
       ),
     );
   }

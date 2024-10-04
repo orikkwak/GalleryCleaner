@@ -1,4 +1,3 @@
-// getlery/lib/views/one_image_screen.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';

@@ -9,7 +9,7 @@ import 'package:getlery/controllers/group_controller.dart';
 import 'package:getlery/controllers/image_controller.dart';
 // import 'package:getlery/controllers/main_controller.dart';
 import 'package:getlery/controllers/set_controller.dart';
-import 'package:getlery/services/image_repository.dart';
+import 'package:getlery/repositories/image_repository.dart';
 import 'package:getlery/routes/app_routes.dart';
 import 'package:permission_handler/permission_handler.dart';
 
