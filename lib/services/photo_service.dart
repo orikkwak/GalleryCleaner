@@ -16,3 +16,19 @@ class PhotoService {
     }
   }
 }
+
+
+// // getlery/lib/services/photo_service.dart
+// import 'dart:io';
+// import 'package:getlery/models/image_model.dart';
+
+// class PhotoService {
+//   Future<void> deletePhotos(List<Photo> photos) async {
+//     for (Photo photo in photos) {
+//       File? file = await photo.file;
+//       if (file != null && await file.exists()) {
+//         await file.delete();
+//       }
+//     }
+//   }
+// }

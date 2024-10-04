@@ -1,4 +1,8 @@
-// lib/models/photo_model.dart
+// getlery/lib/models/photo_model.dart
+import 'dart:io';
+import 'dart:typed_data';
+import 'package:flutter/services.dart';
+import 'package:photo_manager/photo_manager.dart';
 
 class Photo {
   final String id;
