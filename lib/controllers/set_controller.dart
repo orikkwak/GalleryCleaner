@@ -1,9 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter/services.dart';
 import 'package:getlery/models/screenshot_model.dart';
 
-class SettingController extends GetxController {
+class SetController extends GetxController {
   final _screenshotList = <ScreenshotInfo>[].obs;
   List<ScreenshotInfo> get screenshotList => _screenshotList.toList();
   static const platform = MethodChannel('screenshot_detector');
@@ -95,5 +96,17 @@ class SettingController extends GetxController {
   void _deleteScreenshot(File screenshotFile) {
     print("Deleting screenshot: ${screenshotFile.path}");
     screenshotFile.delete();
+  }
+
+  void _scheduleAutoDelete(ScreenshotInfo screenshotInfo) {
+    Future.delayed(
+        Duration(
+          hours: autoDeleteHours.value,
+          minutes: autoDeleteMinutes.value,
+        ), () {
+      _deleteScreenshot(screenshotInfo.file);
+      _screenshotList.remove(screenshotInfo);
+      print("Screenshot auto-deleted: ${screenshotInfo.file.path}");
+    });
   }
 }

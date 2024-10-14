@@ -25,7 +25,7 @@ void main() async {
     Get.put(ImageController());
     // Get.put(MainController());
     Get.put(GroupController());
-    Get.put(SettingController());
+    Get.put(SetController());
 
     runApp(const MyApp());
   } else {

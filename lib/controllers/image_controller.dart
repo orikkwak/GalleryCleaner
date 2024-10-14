@@ -31,13 +31,13 @@ class ImageController extends GetxController {
         start: 0,
         end: 1000, // 페이징 처리 가능
         filterOption: filterOptionGroup,
-      );
+      ).then((result) => result.cast<AssetEntity>());
 
       images.value = assetEntities.map((assetEntity) {
         return ImageModel(
           id: assetEntity.id,
           assetEntity: assetEntity,
-          createdAt: assetEntity.createDateTime,
+          createdAt: assetEntity.createDateTime ?? DateTime.now(),
         );
       }).toList();
     } catch (e) {

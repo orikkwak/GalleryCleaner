@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:getxgallery/controllers/setting_controller.dart';
+import 'package:getlery/controllers/set_controller.dart';
 
 class SettingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final settingController = Get.put(SettingController());
+    final settingController = Get.put(SetController());
 
     return Scaffold(
       appBar: AppBar(
