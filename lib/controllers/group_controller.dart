@@ -15,7 +15,7 @@ class GroupController extends GetxController {
   final Rx<List<GroupModel>> _minuteGroups = Rx<List<GroupModel>>([]);
   List<GroupModel> get minuteGroups => _minuteGroups.value;
 
-  // Rx<DateTime> 변수의 값을 사용할 때는 .value를 통해 접근
+  // 날짜 필터
   Rx<DateTime> startDate =
       (DateTime.now().subtract(const Duration(days: 10))).obs;
   Rx<DateTime> endDate = DateTime.now().obs;
@@ -31,7 +31,7 @@ class GroupController extends GetxController {
     try {
       // 서버에서 이미지 불러오기
       _images.value = await imageRepository.fetchImagesFromServer(
-          startDate.value as int, endDate.value); // .value로 Rx<DateTime> 접근
+          startDate.value as int, endDate.value);
 
       // 캐시된 NIMA 점수 적용
       await nimaScoreService.applyCachedNimaScores(_images);
@@ -79,7 +79,7 @@ class GroupController extends GetxController {
 
     return groupedImages.entries.map((entry) {
       return GroupModel(
-        groupKey: entry.key, // 수정된 GroupModel 사용
+        groupKey: entry.key,
         images: entry.value,
       );
     }).toList();
@@ -89,5 +89,17 @@ class GroupController extends GetxController {
   ImageModel _selectRepresentativeImage(List<ImageModel> images) {
     images.sort((a, b) => b.nimaScore!.compareTo(a.nimaScore!));
     return images.first;
+  }
+
+  // 그룹 정렬 기능
+  void sortGroups(bool newestFirst) {
+    _minuteGroups.value.sort((a, b) {
+      if (newestFirst) {
+        return b.groupKey.compareTo(a.groupKey);
+      } else {
+        return a.groupKey.compareTo(b.groupKey);
+      }
+    });
+    _minuteGroups.refresh();
   }
 }

@@ -1,4 +1,4 @@
-// getlery/lib/views/main_screen.dart
+//D:\getlery\lib\views\main_screen.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:getlery/controllers/group_controller.dart';
@@ -7,7 +7,6 @@ import 'package:getlery/views/widgets/group_grid_screen.dart';
 import 'package:getlery/views/widgets/photo_grid_screen.dart';
 import 'package:getlery/views/setting_screen.dart';
 import 'package:getlery/views/widgets/sort_option_bottom_sheet.dart';
-import 'package:intl/intl.dart';
 
 class MainScreen extends GetView<ImageController> {
   const MainScreen({super.key});
@@ -50,48 +49,46 @@ class MainScreen extends GetView<ImageController> {
           ]),
         ),
         actions: [
-          GetX<ImageController>(
-            builder: (controller) {
-              return controller.selectedItems.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red),
-                      onPressed: () {
-                        Get.defaultDialog(
-                          title: 'Delete Images',
-                          middleText:
-                              'Are you sure you want to delete ${controller.selectedItems.length} images?',
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                controller.selectedItems.clear(); // 선택 해제
-                                controller.isSelectMode.value = false;
-                                Get.back();
-                              },
-                              child: const Text('No'),
-                            ),
-                            TextButton(
-                              onPressed: () async {
-                                await controller
-                                    .deleteSelectedImages(); // 선택된 이미지 삭제
-                                controller.isSelectMode.value = false;
-                                Get.back();
-                              },
-                              child: const Text('Delete'),
-                            ),
-                          ],
-                        );
-                      },
-                    )
-                  : const SizedBox.shrink();
-            },
-          ),
+          Obx(() {
+            return controller.selectedItems.isNotEmpty
+                ? IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: () {
+                      Get.defaultDialog(
+                        title: 'Delete Images',
+                        middleText:
+                            'Are you sure you want to delete ${controller.selectedItems.length} images?',
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              controller.selectedItems.clear(); // 선택 해제
+                              controller.isSelectMode.value = false;
+                              Get.back();
+                            },
+                            child: const Text('No'),
+                          ),
+                          TextButton(
+                            onPressed: () async {
+                              await controller
+                                  .deleteSelectedImages(); // 선택된 이미지 삭제
+                              controller.isSelectMode.value = false;
+                              Get.back();
+                            },
+                            child: const Text('Delete'),
+                          ),
+                        ],
+                      );
+                    },
+                  )
+                : const SizedBox.shrink();
+          }),
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const SettingScreen())); // 설정 화면 이동
+                      builder: (context) => SettingScreen())); // 설정 화면 이동
             },
           ),
         ],
@@ -103,12 +100,12 @@ class MainScreen extends GetView<ImageController> {
             children: [
               ListView(
                 children: [
-                  Container(
+                  SizedBox(
                     height: 160,
-                    child: const GroupGridScreen(), // 그룹 그리드 화면
+                    child: GroupGridScreen(), // 그룹 그리드 화면
                   ),
                   const SizedBox(height: 16),
-                  const PhotoGridScreen(), // 사진 그리드 화면
+                  PhotoGridScreen(), // 사진 그리드 화면
                 ],
               ),
             ],
