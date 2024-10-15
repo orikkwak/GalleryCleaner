@@ -1,36 +1,32 @@
-// getlery/lib/services/permission_service.dart
 import 'package:permission_handler/permission_handler.dart';
+import 'dart:io'; // 앱 종료를 위해 사용
 
 class PermissionService {
-  // 앱 시작 시 필요한 권한 요청 (사진 및 저장소)
+  // 권한을 요청하는 메서드
   static Future<bool> requestPermissionsOnStart() async {
+    // 필요한 권한들을 리스트로 나열
     Map<Permission, PermissionStatus> statuses = await [
-      Permission.storage, // 저장소 권한
-      Permission.photos, // 사진 권한
+      Permission.storage, // 저장소 접근 (안드로이드 12 이하)
+      Permission.photos, // 미디어 접근 (안드로이드 13 이상)
+      Permission.notification // 알림 권한
     ].request();
 
-    // 두 권한 모두 승인된 경우
-    bool isGranted = statuses[Permission.storage]!.isGranted &&
-        statuses[Permission.photos]!.isGranted;
+    bool isStorageGranted = statuses[Permission.storage]!.isGranted;
+    bool isPhotosGranted = statuses[Permission.photos]!.isGranted;
 
-    return isGranted;
-  }
-
-  // 저장소 권한 상태 확인 및 요청
-  static Future<bool> checkStoragePermission() async {
-    var status = await Permission.storage.status;
-    if (!status.isGranted) {
-      return await Permission.storage.request().isGranted;
+    // 저장소 또는 사진 권한 중 하나라도 승인되지 않으면 false 반환
+    if (!isStorageGranted && !isPhotosGranted) {
+      print("저장소 또는 사진 권한이 허용되지 않았습니다.");
+      exit(0); // 권한이 없으면 앱 종료
     }
-    return status.isGranted;
-  }
 
-  // 사진 권한 상태 확인 및 요청
-  static Future<bool> checkPhotoPermission() async {
-    var status = await Permission.photos.status;
-    if (!status.isGranted) {
-      return await Permission.photos.request().isGranted;
+    // 알림 권한은 필수가 아니므로 승인 여부에 상관없이 계속 진행
+    if (statuses[Permission.notification]!.isGranted) {
+      print("알림 권한이 승인되었습니다.");
+    } else {
+      print("알림 권한이 거부되었지만 필수는 아닙니다.");
     }
-    return status.isGranted;
+
+    return true; // 필수 권한이 승인된 경우
   }
 }
