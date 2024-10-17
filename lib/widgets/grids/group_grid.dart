@@ -34,7 +34,7 @@ class GroupGrid extends StatelessWidget {
           final group = groupedPhotos[index];
 
           return GestureDetector(
-            key: UniqueKey(), // 고유한 키 추가
+            // key: UniqueKey(), // 고유한 키 추가
             onTap: () => _navigateToGroupViewerScreen(context, group),
             child: Stack(
               children: [

@@ -10,6 +10,7 @@ import 'package:getlery/widgets/grids/group_grid.dart';
 import 'package:getlery/widgets/grids/image_grid.dart';
 import 'package:getlery/views/setting_screen.dart';
 import 'package:getlery/widgets/sort_option_bottom_sheet.dart';
+import 'package:intl/intl.dart';
 
 class MainScreen extends GetView<ImageController> {
   const MainScreen({super.key});
@@ -28,6 +29,7 @@ class MainScreen extends GetView<ImageController> {
               icon: const Icon(Icons.arrow_drop_down),
               onPressed: () async {
                 final DateTimeRange? selectedRange = await showDateRangePicker(
+                  //showDateRangePicker여기에서 달력 디테일한부분 수정해야함.
                   context: context,
                   firstDate: DateTime(2000),
                   lastDate: DateTime(2100),
@@ -42,12 +44,55 @@ class MainScreen extends GetView<ImageController> {
                   controller.fetchImages();
                   groupController.fetchImages();
                 }
+                // 선택된 날짜 범위에 해당하는 이미지의 총 개수를 계산
+                final startDate = controller.startDate.value;
+                final endDate = controller.endDate.value;
+                int totalImages = 0;
+                for (var photo in controller.images) {
+                  final imageDate = photo.createdAt;
+                  if (imageDate.isAfter(startDate) &&
+                      imageDate.isBefore(endDate)) {
+                    totalImages++;
+                  }
+                }
+
+                // 사용자에게 정보 표시를 위한 다이얼로그 표시
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Image Show'),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                            '${DateFormat('yyyy/MM/dd').format(startDate)} - ${DateFormat('yyyy/MM/dd').format(endDate)}'),
+                        // const SizedBox(height: 8),
+                      ],
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text('cancel'.tr),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          controller.fetchImages(); // 여기를 수정했습니다.
+                          Navigator.pop(context);
+                        },
+                        child: Text('show'.tr),
+                      ),
+                    ],
+                  ),
+                  //다이얼로그 여기까지
+                );
               },
             ),
           ]),
         ),
         actions: [
-          Obx(() {
+          GetX<ImageController>(builder: (controller) {
+            //Obx를 Getx로 고침
             return controller.selectedItems.isNotEmpty
                 ? IconButton(
                     icon: const Icon(Icons.delete, color: Colors.red),
@@ -89,6 +134,7 @@ class MainScreen extends GetView<ImageController> {
       ),
       body: SafeArea(
         child: Obx(() {
+          groupController.minuteGroups; // 앨범 데이터 변경 감지
           return Stack(
             children: [
               SizedBox(height: 160, child: GroupGrid()),
@@ -104,6 +150,17 @@ class MainScreen extends GetView<ImageController> {
                   index,
                 ),
               ),
+              //원래 childre안에 있던 코드임.
+              // ListView(
+              //   children: [
+              //     Container(
+              //       height: 160,
+              //       child: const GroupGridScreen(),
+              //     ),
+              //     const SizedBox(height: 16),
+              //     const PhotoGridScreen(),
+              //   ],
+              // ),
             ],
           );
         }),

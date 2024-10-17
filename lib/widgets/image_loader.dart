@@ -11,7 +11,7 @@ class ImageLoader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<File?>(
-      key: UniqueKey(), // 고유한 키 추가
+      // key: UniqueKey(), // 고유한 키 추가
       future: imageFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done &&

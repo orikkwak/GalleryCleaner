@@ -27,7 +27,6 @@ class ImageGrid extends StatelessWidget {
       itemCount: images.length,
       itemBuilder: (context, index) {
         return GestureDetector(
-          key: UniqueKey(), // 고유한 키 추가
           onTap: () => onTap(index),
           child: ImageLoader(imageFuture: images[index]),
         );
