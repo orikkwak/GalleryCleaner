@@ -1,4 +1,5 @@
-// lib/views/main_screen.dart
+// 파일 위치: lib/views/main_screen.dart
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -81,8 +82,7 @@ class MainScreen extends GetView<ImageController> {
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => SettingScreen()));
+              Get.to(() => SettingScreen()); // 수정: Navigator.push에서 Get.to로 변경
             },
           ),
         ],
