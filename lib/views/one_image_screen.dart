@@ -1,4 +1,5 @@
-// lib/views/one_image_screen.dart
+// 파일 위치: lib/views/one_image_screen.dart
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
@@ -7,16 +8,17 @@ class OneImageScreen extends StatefulWidget {
   final List<File> imageFileList;
   final int initialIndex;
 
-  OneImageScreen({
+  const OneImageScreen({
+    super.key,
     required this.imageFileList,
     required this.initialIndex,
   });
 
   @override
-  _OneImageScreenState createState() => _OneImageScreenState();
+  OneImageScreenState createState() => OneImageScreenState();
 }
 
-class _OneImageScreenState extends State<OneImageScreen> {
+class OneImageScreenState extends State<OneImageScreen> {
   late PageController _pageController;
   late int _currentIndex;
 
@@ -41,6 +43,7 @@ class _OneImageScreenState extends State<OneImageScreen> {
         ),
       ),
       body: PageView.builder(
+        key: UniqueKey(), // 고유한 키 추가
         controller: _pageController,
         itemCount: widget.imageFileList.length,
         itemBuilder: (context, index) {

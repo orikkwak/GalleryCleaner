@@ -82,7 +82,7 @@ class MainScreen extends GetView<ImageController> {
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
-              Get.to(() => SettingScreen()); // 수정: Navigator.push에서 Get.to로 변경
+              Get.to(() => const SettingScreen());
             },
           ),
         ],
@@ -91,22 +91,18 @@ class MainScreen extends GetView<ImageController> {
         child: Obx(() {
           return Stack(
             children: [
-              ListView(
-                children: [
-                  SizedBox(height: 160, child: GroupGrid()),
-                  const SizedBox(height: 16),
-                  ImageGrid(
-                    images: controller.images.map((img) => img.file).toList(),
-                    onTap: (index) => navigateToOneImageScreen(
-                      context,
-                      controller.images
-                          .map((img) => img.file)
-                          .whereType<File>()
-                          .toList(),
-                      index,
-                    ),
-                  ),
-                ],
+              SizedBox(height: 160, child: GroupGrid()),
+              const SizedBox(height: 16),
+              ImageGrid(
+                images: controller.images.map((img) => img.file).toList(),
+                onTap: (index) => navigateToOneImageScreen(
+                  context,
+                  controller.images
+                      .map((img) => img.file)
+                      .whereType<File>()
+                      .toList(),
+                  index,
+                ),
               ),
             ],
           );

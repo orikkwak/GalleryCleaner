@@ -1,5 +1,7 @@
 // getlery/lib/repositories/image_repository.dart
 
+// ignore_for_file: avoid_print
+
 import 'dart:convert';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';

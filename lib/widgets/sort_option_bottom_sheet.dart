@@ -7,7 +7,8 @@ class SortOptionBottomSheet extends StatelessWidget {
   final ImageController imageController;
   final GroupController groupController;
 
-  SortOptionBottomSheet({
+  const SortOptionBottomSheet({
+    super.key,
     required this.imageController,
     required this.groupController,
   });

@@ -1,4 +1,5 @@
-// lib/widgets/grids/image_grid.dart
+// 파일 위치: lib/widgets/grids/image_grid.dart
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:getlery/widgets/image_loader.dart';
@@ -8,7 +9,8 @@ class ImageGrid extends StatelessWidget {
   final int crossAxisCount;
   final void Function(int) onTap;
 
-  ImageGrid({
+  const ImageGrid({
+    super.key,
     required this.images,
     this.crossAxisCount = 3,
     required this.onTap,
@@ -25,6 +27,7 @@ class ImageGrid extends StatelessWidget {
       itemCount: images.length,
       itemBuilder: (context, index) {
         return GestureDetector(
+          key: UniqueKey(), // 고유한 키 추가
           onTap: () => onTap(index),
           child: ImageLoader(imageFuture: images[index]),
         );

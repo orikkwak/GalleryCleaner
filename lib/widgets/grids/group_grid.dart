@@ -1,4 +1,5 @@
-// lib/widgets/grids/group_grid.dart
+// 파일 위치: lib/widgets/grids/group_grid.dart
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -8,6 +9,8 @@ import 'package:getlery/views/group_viewer_screen.dart';
 
 class GroupGrid extends StatelessWidget {
   final GroupController _groupController = Get.find<GroupController>();
+
+  GroupGrid({super.key}); // const 제거
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +22,7 @@ class GroupGrid extends StatelessWidget {
       final groupedPhotos = _groupController.minuteGroups;
 
       return GridView.builder(
-        scrollDirection: Axis.horizontal, // 가로로 스크롤
+        scrollDirection: Axis.horizontal,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 1,
           crossAxisSpacing: 8.0,
@@ -31,6 +34,7 @@ class GroupGrid extends StatelessWidget {
           final group = groupedPhotos[index];
 
           return GestureDetector(
+            key: UniqueKey(), // 고유한 키 추가
             onTap: () => _navigateToGroupViewerScreen(context, group),
             child: Stack(
               children: [

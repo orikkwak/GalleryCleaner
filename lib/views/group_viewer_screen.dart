@@ -1,4 +1,5 @@
-// lib/views/group_viewer_screen.dart
+// 파일 위치: lib/views/group_viewer_screen.dart
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:getlery/models/group_model.dart';
@@ -7,7 +8,7 @@ import 'package:photo_view/photo_view.dart';
 class GroupViewerScreen extends StatelessWidget {
   final GroupModel group;
 
-  GroupViewerScreen({required this.group});
+  const GroupViewerScreen({super.key, required this.group});
 
   @override
   Widget build(BuildContext context) {
@@ -17,10 +18,8 @@ class GroupViewerScreen extends StatelessWidget {
       ),
       body: Column(
         children: [
-          // 대표 이미지
           _buildRepresentativeImage(),
           const SizedBox(height: 16),
-          // 나머지 이미지들
           Expanded(child: _buildRemainingImages()),
         ],
       ),
@@ -28,9 +27,9 @@ class GroupViewerScreen extends StatelessWidget {
   }
 
   Widget _buildRepresentativeImage() {
-    return Container(
+    return SizedBox(
       width: double.infinity,
-      height: 300, // 대표 이미지 크기
+      height: 300,
       child: FutureBuilder<File?>(
         future: group.representativeImage?.file,
         builder: (context, snapshot) {
@@ -52,7 +51,7 @@ class GroupViewerScreen extends StatelessWidget {
   Widget _buildRemainingImages() {
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3, // 한 줄에 3개씩
+        crossAxisCount: 3,
         crossAxisSpacing: 4.0,
         mainAxisSpacing: 4.0,
       ),
