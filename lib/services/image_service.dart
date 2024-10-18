@@ -1,79 +1,46 @@
+// 파일 위치: lib/services/image_service.dart
+
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
+import 'package:getlery/models/image_model.dart';
 import 'package:http/http.dart' as http;
 
 class ImageService {
-  final String baseUrl = 'http://localhost:3000';
-  final String _nimaCacheKey = 'cached_nima_scores';
+  final String serverUrl = 'http://localhost:3000';
 
-  // 이미지 업로드 API 호출 및 NIMA 점수 수신
-  Future<Map<String, double>> uploadImages(List<String> imagePaths) async {
-    var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/upload'));
+  //페이징이랑 캐싱
 
-    for (var imagePath in imagePaths) {
-      request.files.add(await http.MultipartFile.fromPath('image', imagePath));
-    }
-
-    var streamedResponse = await request.send();
-    var response = await http.Response.fromStream(streamedResponse);
+  // 이미지 가져오기
+  Future<List<ImageModel>> fetchImages(
+      DateTime startDate, DateTime endDate) async {
+    final response = await http
+        .get(Uri.parse('$serverUrl/images?start=$startDate&end=$endDate'));
 
     if (response.statusCode == 200) {
-      final Map<String, dynamic> responseData = jsonDecode(response.body);
-      final nimaScores = Map<String, double>.from(responseData['nimaScores']);
-      return nimaScores;
+      List<dynamic> data = jsonDecode(response.body);
+      return data.map((json) => ImageModel.fromJson(json)).toList();
     } else {
-      throw Exception('Failed to upload images and get NIMA scores');
+      throw Exception('Failed to fetch images');
     }
   }
 
-  // NIMA 점수 캐시에서 삭제
-  Future<void> deleteNimaScoreFromCache(String imageId) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    Map<String, double> cachedNimaScores =
-        await _loadNimaScoresFromCache(prefs);
-    cachedNimaScores.remove(imageId);
-    prefs.setString(_nimaCacheKey, jsonEncode(cachedNimaScores));
+  // 이미지 업로드
+  Future<void> uploadImage(File imageFile) async {
+    var request = http.MultipartRequest('POST', Uri.parse('$serverUrl/upload'));
+    request.files
+        .add(await http.MultipartFile.fromPath('image', imageFile.path));
+    await request.send();
   }
 
-  // NIMA 점수 캐시에 저장
-  Future<void> cacheNimaScore(String imageId, double nimaScore) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    Map<String, double> cachedNimaScores =
-        await _loadNimaScoresFromCache(prefs);
-    cachedNimaScores[imageId] = nimaScore;
-    prefs.setString(_nimaCacheKey, jsonEncode(cachedNimaScores));
-  }
-
-  // NIMA 점수 캐시에서 로드
-  Future<Map<String, double>> _loadNimaScoresFromCache(
-      SharedPreferences prefs) async {
-    String? cachedData = prefs.getString(_nimaCacheKey);
-    if (cachedData == null) return {};
-    Map<String, dynamic> cachedScoresJson = jsonDecode(cachedData);
-    return Map<String, double>.from(cachedScoresJson);
-  }
-
-  // 서버에서 이미지 가져오기
-  Future<List<dynamic>> fetchImagesFromServer() async {
-    final response = await http.get(Uri.parse('$baseUrl/images'));
-
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body) as List<dynamic>;
-    } else {
-      throw Exception('Failed to fetch images from server');
+  // 선택된 이미지 삭제
+  Future<void> deleteSelectedImages(List<ImageModel> images) async {
+    for (var image in images) {
+      await deleteImage(image.id);
     }
   }
 
-  // 이미지 삭제 API 호출
+  // 이미지 삭제
   Future<void> deleteImage(String imageId) async {
-    final url = Uri.parse('$baseUrl/delete');
-    final response = await http.delete(
-      url,
-      body: jsonEncode({'imageId': imageId}),
-    );
-
-    if (response.statusCode != 200) {
-      throw Exception('Failed to delete image');
-    }
+    await http.delete(Uri.parse('$serverUrl/images/$imageId'));
   }
 }

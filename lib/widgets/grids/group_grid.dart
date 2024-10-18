@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:getlery/controllers/group_controller.dart';
 import 'package:getlery/models/group_model.dart';
-import 'package:getlery/views/group_viewer_screen.dart';
+import 'package:getlery/views/group_screen.dart';
 
 class GroupGrid extends StatelessWidget {
   final GroupController _groupController = Get.find<GroupController>();
 
-  GroupGrid({super.key}); // const 제거
+  GroupGrid({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +19,7 @@ class GroupGrid extends StatelessWidget {
         return const Center(child: CircularProgressIndicator());
       }
 
-      final groupedPhotos = _groupController.minuteGroups;
+      final groupedPhotos = _groupController.groups;
 
       return GridView.builder(
         scrollDirection: Axis.horizontal,
@@ -34,7 +34,6 @@ class GroupGrid extends StatelessWidget {
           final group = groupedPhotos[index];
 
           return GestureDetector(
-            // key: UniqueKey(), // 고유한 키 추가
             onTap: () => _navigateToGroupViewerScreen(context, group),
             child: Stack(
               children: [

@@ -1,3 +1,4 @@
+// 파일 위치: lib/models/image_model.dart
 // ignore_for_file: avoid_print
 
 import 'dart:io';
@@ -19,6 +20,9 @@ class ImageModel {
     this.nimaScore, // NIMA 점수 추가
     Uint8List? thumbnailData,
   });
+
+  // A: filePath 속성 추가 (오류 해결용)
+  String get filePath => assetEntity.relativePath ?? '';
 
   // JSON 데이터를 통해 ImageModel 객체 생성 (NIMA 점수 포함)
   factory ImageModel.fromJson(Map<String, dynamic> json) {
@@ -69,7 +73,7 @@ class ImageModel {
     };
   }
 
-  // 이미지의 썸네일 데이터를 불러오는 함수
+  // 썸네일 데이터를 가져오는 함수 (Lazy Loading 적용)
   Future<Uint8List?> get thumbnailData async {
     if (_thumbnailData == null) {
       try {
@@ -84,7 +88,7 @@ class ImageModel {
     return _thumbnailData;
   }
 
-  // 이미지 파일을 로드하는 함수
+  // 이미지 파일을 가져오는 함수 (Lazy Loading 적용)
   Future<File?> get file async {
     if (_file == null) {
       try {
