@@ -6,7 +6,7 @@ import 'package:getlery/bindings/selection_binding.dart';
 import 'package:getlery/bindings/set_bindings.dart';
 import 'package:getlery/services/permission_service.dart';
 import 'package:getlery/bindings/image_bindings.dart';
-import 'package:getlery/bindings/group_bindings.dart'; // 그룹 바인딩 추가
+import 'package:getlery/bindings/group_bindings.dart';
 import 'package:getlery/common/color_scheme.dart';
 import 'package:getlery/common/translations_info.dart';
 import 'package:getlery/controllers/group_controller.dart';

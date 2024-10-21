@@ -52,14 +52,11 @@ class MainScreen extends GetView<ImageController> {
 
                   final startDate = controller.startDate.value;
                   final endDate = controller.endDate.value;
-                  int totalImages = 0;
-                  for (var photo in controller.images) {
-                    final imageDate = photo.createdAt;
-                    if (imageDate.isAfter(startDate) &&
-                        imageDate.isBefore(endDate)) {
-                      totalImages++;
-                    }
-                  }
+                  int totalImages = controller.images
+                      .where((photo) =>
+                          photo.createdAt.isAfter(startDate) &&
+                          photo.createdAt.isBefore(endDate))
+                      .length;
 
                   showDialog(
                     context: context,

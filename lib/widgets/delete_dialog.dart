@@ -7,8 +7,7 @@ import 'package:getlery/controllers/selection_controller.dart';
 class DeleteDialog extends StatelessWidget {
   final SelectionController selectionController;
 
-  const DeleteDialog({Key? key, required this.selectionController})
-      : super(key: key);
+  const DeleteDialog({super.key, required this.selectionController});
 
   @override
   Widget build(BuildContext context) {
