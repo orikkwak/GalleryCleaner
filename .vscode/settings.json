@@ -1,4 +1,7 @@
 {
     "java.compile.nullAnalysis.mode": "automatic",
-    "vscode-corda.isCordaProject": false
+    "vscode-corda.isCordaProject": false,
+    "cSpell.words": [
+        "cupertino"
+    ]
 }

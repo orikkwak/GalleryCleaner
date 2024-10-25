@@ -9,7 +9,7 @@ import 'package:getlery/views/group_screen.dart';
 
 class GroupGrid extends StatelessWidget {
   final GroupController _groupController = Get.find<GroupController>();
-
+  bool _isNavigating = false;
   GroupGrid({super.key});
 
   @override
@@ -79,7 +79,14 @@ class GroupGrid extends StatelessWidget {
   }
 
   void _navigateToGroupViewerScreen(BuildContext context, GroupModel group) {
-    Get.to(() => GroupViewerScreen(group: group));
+    if (Get.currentRoute != '/group_viewer') {
+      if (!_isNavigating) {
+        _isNavigating = true;
+        Get.to(() => GroupViewerScreen(group: group))?.then((_) {
+          _isNavigating = false; // 네비게이션 완료 후 다시 false로 설정
+        });
+      }
+    }
   }
 
   String _getGroupName(DateTime? groupKey) {

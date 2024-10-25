@@ -69,7 +69,7 @@ class GroupViewerScreen extends StatelessWidget {
       // 이미지 줌인/줌아웃 기능이 있는 그리드 사용
       images: group.images.map((img) => img.file).toList(), // 이미지 리스트 전달
       onTap: (index) => _showFullImage(context as BuildContext,
-          group.images[index].file! as File), // 이미지 선택 시 전체 화면 표시
+          group.images[index].file as File), // 이미지 선택 시 전체 화면 표시
     );
   }
 

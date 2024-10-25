@@ -7,14 +7,18 @@ import 'package:getlery/models/image_model.dart';
 import 'package:http/http.dart' as http;
 
 class ImageRepository {
-  final String _cacheKey = 'cached_images';
   final String _serverUrl = 'http://localhost:3000';
   static const int _pageSize = 100;
+
+  // 캐시 키를 반환하는 메서드
+  String _getCacheKey() {
+    return 'cached_images';
+  }
 
   // 캐시에서 이미지 불러오기
   Future<List<ImageModel>> loadImagesFromCache(int pageIndex) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? cachedData = prefs.getString(_cacheKey);
+    String? cachedData = prefs.getString(_getCacheKey());
 
     if (cachedData == null) return [];
 
@@ -85,7 +89,7 @@ class ImageRepository {
     List<Map<String, dynamic>> imagesJson =
         images.map((image) => image.toJson()).toList();
 
-    String? cachedData = prefs.getString(_cacheKey);
+    String? cachedData = prefs.getString(_getCacheKey());
     List<dynamic> cachedImagesJson =
         cachedData != null ? jsonDecode(cachedData) : [];
     List<ImageModel> cachedImages =
@@ -100,6 +104,6 @@ class ImageRepository {
       }
     }
 
-    prefs.setString(_cacheKey, jsonEncode(cachedImages));
+    prefs.setString(_getCacheKey(), jsonEncode(cachedImages));
   }
 }

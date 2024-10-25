@@ -24,7 +24,8 @@ if (flutterVersionName == null) {
 
 android {
     namespace "com.example.getlery"
-    compileSdk flutter.compileSdkVersion
+    // flutter 객체 대신 직접 SDK 버전 명시
+    compileSdk 33  // flutter.compileSdkVersion 대신 직접 명시
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -45,8 +46,8 @@ android {
         applicationId "com.example.getlery"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion flutter.minSdkVersion
-        targetSdkVersion flutter.targetSdkVersion
+        minSdkVersion 21  // flutter.minSdkVersion 대신 직접 명시
+        targetSdkVersion 34  // flutter.targetSdkVersion 대신 직접 명시
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }

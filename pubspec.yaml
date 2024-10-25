@@ -35,7 +35,7 @@ dependencies:
   flutter_launcher_icons: ^0.10.0
 
   # Cupertino Icons 패키지 (iOS 스타일 아이콘)
-  cupertino_icons: ^1.0.6
+  # cupelatino_icons: ^1.0.6
   path_provider: ^2.1.4
   intl: ^0.19.0
   flutter_local_notifications: ^17.2.3
@@ -53,4 +53,5 @@ flutter:
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/icons/logo/android_512x512.png"
+  image_path: "assets/icons/logo/logo_android_512x512.png"
+  

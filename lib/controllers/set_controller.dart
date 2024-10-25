@@ -3,13 +3,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:flutter/services.dart';
 import 'package:getlery/models/screenshot_model.dart';
 
 class SetController extends GetxController {
   final _screenshotList = <ScreenshotInfo>[].obs;
   List<ScreenshotInfo> get screenshotList => _screenshotList.toList();
-  static const platform = MethodChannel('screenshot_detector');
+  // static const platform = MethodChannel('screenshot_detector');
 
   RxBool isDarkMode = false.obs;
   RxString selectedLanguage = 'kr'.obs;
@@ -23,17 +22,17 @@ class SetController extends GetxController {
     super.onInit();
     isDarkMode.value = Get.isDarkMode;
     selectedLanguage.value = Get.locale?.languageCode ?? 'en';
-    startScreenshotDetection();
+    // startScreenshotDetection();
   }
 
-  Future<void> startScreenshotDetection() async {
-    try {
-      await platform.invokeMethod('startScreenshotDetection');
-      print("Screenshot detection started");
-    } on PlatformException catch (e) {
-      print("Failed to start screenshot detection: '${e.message}'.");
-    }
-  }
+  // Future<void> startScreenshotDetection() async {
+  //   try {
+  //     await platform.invokeMethod('startScreenshotDetection');
+  //     print("Screenshot detection started");
+  //   } on PlatformException catch (e) {
+  //     print("Failed to start screenshot detection: '${e.message}'.");
+  //   }
+  // }
 
   void onScreenshotDetected(ScreenshotInfo screenshotInfo) {
     print("Screenshot detected");
