@@ -15,7 +15,7 @@ import 'package:getlery_client/widgets/sort_option_bottom_sheet.dart';
 import 'package:intl/intl.dart';
 
 class MainScreen extends GetView<ImageController> {
-  const MainScreen({super.key});
+  const MainScreen({super.key}); //이것도 바꿔야겟다ㅠ
 
   @override
   Widget build(BuildContext context) {
