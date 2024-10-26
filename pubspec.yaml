@@ -1,0 +1,57 @@
+name: getlery_client
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.3 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  shared_preferences: ^2.2.3
+  image: ^3.0.1
+  photo_view: ^0.14.0
+  # GetX 패키지 - 상태 관리 및 라우팅
+  get: ^4.6.6
+  
+  # HTTP 패키지 - 서버와 통신할 때 필요
+  http: ^1.2.2  # 최신 버전으로 통일
+
+  # Photo Manager 패키지 - 사진 접근 및 관리
+  photo_manager: ^3.1.1
+  
+  # 권한 처리 패키지
+  permission_handler: ^11.3.1
+  
+  # 갤러리에 사진 저장
+  image_gallery_saver: ^2.0.3
+  
+  # 파일 경로 관리 패키지
+  path: ^1.9.0
+
+  flutter_launcher_icons: ^0.10.0
+
+  # Cupertino Icons 패키지 (iOS 스타일 아이콘)
+  # cupelatino_icons: ^1.0.6
+  intl: ^0.19.0
+  flutter_local_notifications: ^17.2.3
+  path_provider_android: ^2.2.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  
+  # Lint 패키지 (코드 품질 검사를 위한 린트 규칙)
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "icons/logo/logo_android_512x512.png"
+  
