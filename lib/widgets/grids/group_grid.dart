@@ -1,5 +1,3 @@
-// 파일 위치: lib/widgets/grids/group_grid.dart
-
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -7,23 +5,19 @@ import 'package:getlery_client/controllers/group_controller.dart';
 import 'package:getlery_client/models/group_model.dart';
 import 'package:getlery_client/views/group_viewer_screen.dart';
 
-class GroupGrid extends StatefulWidget {
+class GroupGrid extends StatelessWidget {
   const GroupGrid({super.key});
-  @override
-  GroupGridState createState() => GroupGridState();
-}
 
-class GroupGridState extends State<GroupGrid> {
-  final GroupController _groupController = Get.find<GroupController>();
-  bool _isNavigating = false;
   @override
   Widget build(BuildContext context) {
+    final GroupController groupController = Get.find<GroupController>();
+
     return Obx(() {
-      if (_groupController.isLoading.value) {
+      if (groupController.isLoading.value) {
         return const Center(child: CircularProgressIndicator());
       }
 
-      final groupedPhotos = _groupController.groups;
+      final groupedPhotos = groupController.groups;
 
       return GridView.builder(
         scrollDirection: Axis.horizontal,
@@ -37,23 +31,11 @@ class GroupGridState extends State<GroupGrid> {
         itemBuilder: (BuildContext context, int index) {
           return GroupGridItem(
             group: groupedPhotos[index],
-            onTap: () =>
-                _navigateToGroupViewerScreen(context, groupedPhotos[index]),
+            onTap: () => Get.to(() => GroupViewerScreen(group: groupedPhotos[index])),
           );
         },
       );
     });
-  }
-
-  void _navigateToGroupViewerScreen(BuildContext context, GroupModel group) {
-    if (Get.currentRoute != '/group_viewer') {
-      if (!_isNavigating) {
-        _isNavigating = true;
-        Get.to(() => GroupViewerScreen(group: group))?.then((_) {
-          _isNavigating = false; // 네비게이션 완료 후 다시 false로 설정
-        });
-      }
-    }
   }
 }
 
@@ -82,7 +64,11 @@ class GroupGridItem extends StatelessWidget {
                     snapshot.hasData) {
                   return Image.file(snapshot.data!, fit: BoxFit.cover);
                 } else {
-                  return const Center(child: CircularProgressIndicator());
+                  // 기본 배경색 추가
+                  return Container(
+                    color: Colors.grey[300],
+                    child: const Center(child: CircularProgressIndicator()),
+                  );
                 }
               },
             ),

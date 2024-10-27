@@ -1,75 +1,67 @@
 // 파일 위치: lib/controllers/image_controller.dart
 
-import 'dart:io';
 import 'package:get/get.dart';
 import 'package:getlery_client/models/image_model.dart';
 import 'package:getlery_client/services/image_service.dart';
-import 'package:getlery_client/services/nima_score_service.dart';
 
 class ImageController extends GetxController {
   final ImageService _imageService = ImageService();
-  final NimaScoreService _nimaScoreService = NimaScoreService();
-
-  RxList<ImageModel> images = RxList<ImageModel>();
-  RxBool isLoading = false.obs;
-  RxBool isImagesEmpty = false.obs; // 빈 이미지 체크 변수 추가
-  RxBool isSnackbarShown = false.obs; // snackbar 중복 방지 변수 추가
-
-  // 날짜 필터
-  Rx<DateTime> startDate =
-      DateTime.now().subtract(const Duration(days: 10)).obs;
-  Rx<DateTime> endDate = DateTime.now().obs;
+  final RxList<ImageModel> images = RxList<ImageModel>();
+  final isLoading = false.obs;
+  final isImagesEmpty = false.obs;
+  int _currentPage = 0; // 페이징 인덱스
+  bool _isNewestFirst = true; // 정렬 기준
 
   @override
   void onInit() {
     super.onInit();
-    fetchImages();
+    loadInitialImages(); // 앱 시작 시 초기 이미지를 로드
   }
 
-  // 이미지 불러오기
-  Future<void> fetchImages() async {
-    isLoading.value = true;
+  // 초기 이미지 로딩: 캐시를 우선 불러오고, 최신 이미지를 가져옴
+  Future<void> loadInitialImages() async {
     try {
-      images.value =
-          await _imageService.fetchImages(startDate.value, endDate.value);
-      isImagesEmpty.value = images.isEmpty; // 이미지 리스트가 비어있는지 확인
-    } catch (e) {
-      if (!isSnackbarShown.value) {
-        isSnackbarShown.value = true;
-        Get.snackbar('Error', 'Failed to fetch images: $e');
-        Future.delayed(const Duration(seconds: 3), () {
-          isSnackbarShown.value = false;
-        });
+      final cachedImages = await _imageService.loadImagesFromCache();
+      if (cachedImages.isNotEmpty) {
+        images.addAll(cachedImages);
       }
-      isImagesEmpty.value = true;
+      await fetchNextPage(); // 기본 정렬 순서로 페이징 시작
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to load images: $e');
+    }
+  }
+
+  // 페이징을 통한 최신 이미지 불러오기
+  Future<void> fetchNextPage() async {
+    isLoading.value = true;
+
+    try {
+      final newImages = await _imageService.fetchLocalImages(_currentPage);
+      images.addAll(newImages);
+      await _imageService.saveImagesToCache(images); // 새로 불러온 이미지 캐시에 저장
+      _currentPage++;
+      isImagesEmpty.value = images.isEmpty;
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to load images: $e');
+      isImagesEmpty.value = images.isEmpty;
     } finally {
       isLoading.value = false;
     }
   }
 
-  // 이미지 업로드
-  Future<void> uploadImage(File imageFile) async {
-    await _imageService.uploadImage(imageFile);
+  // 이미지를 삭제하고 목록을 새로고침
+  Future<void> deleteSelectedImages(List<ImageModel> selectedImages) async {
+    await _imageService.deleteSelectedImages(selectedImages);
+    _currentPage = 0; // 페이지 초기화
+    images.clear(); // 목록 초기화 후 새로 불러오기
+    await fetchNextPage();
   }
 
-  // 선택된 이미지 삭제
-  Future<void> deleteSelectedImages() async {
-    await _imageService.deleteSelectedImages(images);
-    images.clear();
-  }
-
-  // NIMA 점수 업데이트
-  Future<void> updateNimaScores() async {
-    await _nimaScoreService.updateNimaScores(images);
-  }
-
-  // 이미지 정렬: 날짜 빠른순/느린순
+  // 정렬 방식 변경 후 이미지 로드
   void sortImages(bool isNewestFirst) {
-    if (isNewestFirst) {
-      images.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-    } else {
-      images.sort((a, b) => a.createdAt.compareTo(b.createdAt));
-    }
-    images.refresh();
+    _isNewestFirst = isNewestFirst;
+    _currentPage = 0;
+    images.clear();
+    fetchNextPage();
   }
 }

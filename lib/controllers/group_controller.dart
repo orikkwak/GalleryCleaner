@@ -3,6 +3,7 @@
 import 'package:get/get.dart';
 import 'package:getlery_client/models/group_model.dart';
 import 'package:getlery_client/services/group_service.dart';
+import 'package:getlery_client/utils/network_helper.dart'; // 네트워크 유틸리티 추가
 
 class GroupController extends GetxController {
   final GroupService _groupService = GroupService();

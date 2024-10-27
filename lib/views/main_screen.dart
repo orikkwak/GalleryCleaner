@@ -1,147 +1,52 @@
-// 파일 위치: lib/views/main_screen.dart
-
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:getlery_client/controllers/group_controller.dart';
 import 'package:getlery_client/controllers/image_controller.dart';
 import 'package:getlery_client/controllers/selection_controller.dart';
-import 'package:getlery_client/main.dart';
-import 'package:getlery_client/widgets/grids/image_grid.dart';
-import 'package:getlery_client/utils/navigate_to_one_image.dart';
 import 'package:getlery_client/views/setting_screen.dart';
 import 'package:getlery_client/widgets/delete_dialog.dart';
 import 'package:getlery_client/widgets/grids/group_grid.dart';
+import 'package:getlery_client/widgets/grids/zoomable_image_grid.dart';
 import 'package:getlery_client/widgets/sort_option_bottom_sheet.dart';
 import 'package:intl/intl.dart';
 
-// 개별 화면 네비게이터 키 추가
-final GlobalKey<NavigatorState> mainScreenNavigatorKey =
-    GlobalKey<NavigatorState>();
-
-class MainScreen extends GetView<ImageController> {
+class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<ImageController>(); // ImageController 자동 주입
-    final groupController =
-        Get.find<GroupController>(); // GroupController 자동 주입
-    final selectionController =
-        Get.find<SelectionController>(); // SelectionController 자동 주입
+    final imageController = Get.find<ImageController>();
+    final groupController = Get.find<GroupController>();
+    final selectionController = Get.find<SelectionController>();
 
     return Scaffold(
       appBar: AppBar(
-        title: Obx(
-          () => Row(
-            children: [
-              Text('Gallery (${controller.images.length})'),
-              IconButton(
-                icon: const Icon(Icons.arrow_drop_down),
-                onPressed: () async {
-                  final DateTimeRange? selectedRange =
-                      await showDateRangePicker(
-                    context: context,
-                    firstDate: DateTime(2000),
-                    lastDate: DateTime(2100),
-                    initialDateRange: DateTimeRange(
-                      start: controller.startDate.value,
-                      end: controller.endDate.value,
-                    ),
-                  );
-                  if (selectedRange != null) {
-                    controller.startDate.value = selectedRange.start;
-                    controller.endDate.value = selectedRange.end;
-                    controller.fetchImages();
-                  }
-
-                  final startDate = controller.startDate.value;
-                  final endDate = controller.endDate.value;
-
-                  // int totalImages = controller.images
-                  //     .where((photo) =>
-                  //         photo.createdAt.isAfter(startDate) &&
-                  //         photo.createdAt.isBefore(endDate))
-                  //     .length;
-
-                  MyApp.mainNavigatorKey.currentState?.push(
-                    MaterialPageRoute(
-                      builder: (context) => AlertDialog(
-                        title: const Text('Image Show'),
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                                '${DateFormat('yyyy/MM/dd').format(startDate)} - ${DateFormat('yyyy/MM/dd').format(endDate)}'),
-                          ],
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () =>
-                                MyApp.mainNavigatorKey.currentState?.pop(),
-                            child: Text('cancel'.tr),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              controller.fetchImages();
-                              MyApp.mainNavigatorKey.currentState?.pop();
-                            },
-                            child: Text('show'.tr),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
+        title: Obx(() => Text('Gallery (${imageController.images.length})')),
         actions: [
           DeleteDialog(selectionController: selectionController),
           IconButton(
             icon: const Icon(Icons.settings),
-            onPressed: () {
-              MyApp.mainNavigatorKey.currentState?.push(
-                MaterialPageRoute(builder: (context) => const SettingScreen()),
-              );
-            },
+            onPressed: () => Get.to(() => const SettingScreen()),
           ),
         ],
       ),
       body: SafeArea(
         child: Obx(() {
-          // 그룹 컨트롤러의 그룹 목록 사용
-          groupController.groups;
-
           return Stack(
             children: [
-              const SizedBox(height: 160, child: GroupGrid()), // 그룹 그리드 표시
+              const SizedBox(height: 160, child: GroupGrid()),
               const SizedBox(height: 16),
-              if (controller.images.isEmpty)
+              if (imageController.images.isEmpty)
                 const Center(
-                  child: Text(
-                    '그룹 이미지가 없습니다.', // 이미지가 없을 때 표시
-                    style: TextStyle(fontSize: 18, color: Colors.grey),
-                  ),
-                )
+                    child: Text('이미지가 없습니다.',
+                        style: TextStyle(fontSize: 18, color: Colors.grey)))
               else
                 ZoomableImageGrid(
-                  // ImageGrid 대신 ZoomableImageGrid로 교체
-                  key:
-                      ValueKey("ZoomableImageGrid-${controller.images.length}"),
-                  images: controller.images
-                      .map((img) => img.file)
-                      .toList(), // 이미지 파일 리스트 전달
-                  onTap: (index) => navigateToOneImageScreen(
-                    context,
-                    controller.images
-                        .map((img) => img.file)
-                        .whereType<File>()
-                        .toList(),
-                    index,
-                  ),
+                  images:
+                      imageController.images.map((img) => img.file).toList(),
+                  // onTap: (index) =>
+                  //     _showImageDialog(context, imageController, index),
                 ),
             ],
           );
@@ -152,8 +57,8 @@ class MainScreen extends GetView<ImageController> {
           showModalBottomSheet(
             context: context,
             builder: (context) => SortOptionBottomSheet(
-              imageController: controller, // ImageController 사용
-              groupController: groupController, // GroupController 사용
+              imageController: imageController,
+              groupController: groupController,
             ),
           );
         },
@@ -161,4 +66,37 @@ class MainScreen extends GetView<ImageController> {
       ),
     );
   }
+
+  // void _showImageDialog(
+  //     BuildContext context, ImageController controller, int index) async {
+  //   final DateTimeRange? selectedRange = await showDateRangePicker(
+  //     context: context,
+  //     firstDate: DateTime(2000),
+  //     lastDate: DateTime(2100),
+  //     initialDateRange: DateTimeRange(
+  //         start: controller.startDate.value, end: controller.endDate.value),
+  //   );
+
+  //   if (selectedRange != null) {
+  //     controller.startDate.value = selectedRange.start;
+  //     controller.endDate.value = selectedRange.end;
+  //     controller.fetchImages();
+  //   }
+
+  //   final startDate = controller.startDate.value;
+  //   final endDate = controller.endDate.value;
+  //   Get.dialog(
+  //     AlertDialog(
+  //       title: const Text('Image Show'),
+  //       content: Text(
+  //           '${DateFormat('yyyy/MM/dd').format(startDate)} - ${DateFormat('yyyy/MM/dd').format(endDate)}'),
+  //       actions: [
+  //         TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr)),
+  //         TextButton(
+  //             onPressed: () => controller.fetchImages(),
+  //             child: Text('show'.tr)),
+  //       ],
+  //     ),
+  //   );
+  // }
 }

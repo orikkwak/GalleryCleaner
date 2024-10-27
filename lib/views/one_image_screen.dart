@@ -1,13 +1,8 @@
 // 파일 위치: lib/views/one_image_screen.dart
-
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:getlery_client/main.dart';
+import 'package:get/get.dart';
 import 'package:photo_view/photo_view.dart';
-
-// groupViewerScreen 전용 Navigator 키 추가
-final GlobalKey<NavigatorState> groupViewerNavigatorKey =
-    GlobalKey<NavigatorState>();
 
 class OneImageScreen extends StatefulWidget {
   final List<File> imageFileList;
@@ -33,6 +28,7 @@ class OneImageScreenState extends State<OneImageScreen> {
     _pageController = PageController(
         initialPage:
             widget.initialIndex); // A: 페이지 컨트롤러에 initialPage 설정 (최적화: 초기값 적용)
+    _currentIndex = widget.initialIndex;
   }
 
   @override
@@ -49,9 +45,7 @@ class OneImageScreenState extends State<OneImageScreen> {
             Text('Image ${_currentIndex + 1}/${widget.imageFileList.length}'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            MyApp.mainNavigatorKey.currentState?.pop();
-          },
+          onPressed: () => Get.back(),
         ),
       ),
       body: PageView.builder(

@@ -3,7 +3,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:getlery_client/main.dart';
 import 'package:getlery_client/models/screenshot_model.dart';
 
 class SetController extends GetxController {
@@ -69,7 +68,8 @@ class SetController extends GetxController {
 
   void _showDeleteDialog(BuildContext context, ScreenshotInfo screenshotInfo) {
     showDialog(
-      context: context,
+      // context: context,
+      context: Get.overlayContext!, // Get.context 대신 Get.overlayContext 사용
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('settings.deleteScreenshot'.tr),
@@ -77,16 +77,14 @@ class SetController extends GetxController {
           actions: <Widget>[
             TextButton(
               child: Text('cancel'.tr),
-              onPressed: () {
-                MyApp.mainNavigatorKey.currentState?.pop();
-              },
+              onPressed: Get.back,
             ),
             TextButton(
               child: Text('delete'.tr),
               onPressed: () {
                 _deleteScreenshot(screenshotInfo.file);
                 _screenshotList.remove(screenshotInfo);
-                MyApp.mainNavigatorKey.currentState?.pop();
+                Get.back();
               },
             ),
           ],

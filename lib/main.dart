@@ -35,15 +35,9 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
-  // 전역 네비게이터 키 (최상위 네비게이터에만 적용)
-  static final GlobalKey<NavigatorState> mainNavigatorKey =
-      GlobalKey<NavigatorState>();
-
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      navigatorKey: mainNavigatorKey, // 설정
       initialRoute: '/',
       initialBinding: BindingsBuilder(() {
         Get.put(SelectionBinding());
