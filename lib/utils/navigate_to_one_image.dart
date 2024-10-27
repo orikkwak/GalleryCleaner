@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dart:io';
-
 import 'package:getlery_client/views/one_image_screen.dart';
 
 void navigateToOneImageScreen(

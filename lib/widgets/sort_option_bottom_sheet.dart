@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:getlery_client/controllers/group_controller.dart';
 import 'package:getlery_client/controllers/image_controller.dart';
+import 'package:getlery_client/main.dart';
 
 class SortOptionBottomSheet extends StatelessWidget {
   final ImageController imageController;
@@ -28,7 +29,7 @@ class SortOptionBottomSheet extends StatelessWidget {
             onTap: () {
               imageController.sortImages(true);
               groupController.sortGroups(true);
-              Navigator.pop(context);
+              MyApp.mainNavigatorKey.currentState?.pop(); // 전역 네비게이터 사용
             },
           ),
           ListTile(
@@ -36,7 +37,7 @@ class SortOptionBottomSheet extends StatelessWidget {
             onTap: () {
               imageController.sortImages(false);
               groupController.sortGroups(false);
-              Navigator.pop(context);
+              MyApp.mainNavigatorKey.currentState?.pop(); // 전역 네비게이터 사용
             },
           ),
         ],

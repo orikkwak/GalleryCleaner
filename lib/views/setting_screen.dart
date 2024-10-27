@@ -3,6 +3,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:getlery_client/controllers/set_controller.dart';
+import '../main.dart';
+
+// SettingScreen 전용 Navigator 키 추가
+final GlobalKey<NavigatorState> settingScreenNavigatorKey =
+    GlobalKey<NavigatorState>();
 
 class SettingScreen extends StatelessWidget {
   const SettingScreen({super.key});
@@ -14,6 +19,12 @@ class SettingScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            MyApp.mainNavigatorKey.currentState?.pop();
+          },
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

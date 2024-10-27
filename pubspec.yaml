@@ -52,6 +52,6 @@ flutter:
 
 flutter_icons:
   android: true
-  ios: true
+  ios: false
   image_path: "icons/logo/logo_android_512x512.png"
   

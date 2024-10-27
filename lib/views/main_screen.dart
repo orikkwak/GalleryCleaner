@@ -6,7 +6,8 @@ import 'package:get/get.dart';
 import 'package:getlery_client/controllers/group_controller.dart';
 import 'package:getlery_client/controllers/image_controller.dart';
 import 'package:getlery_client/controllers/selection_controller.dart';
-import 'package:getlery_client/services/image_grid.dart';
+import 'package:getlery_client/main.dart';
+import 'package:getlery_client/widgets/grids/image_grid.dart';
 import 'package:getlery_client/utils/navigate_to_one_image.dart';
 import 'package:getlery_client/views/setting_screen.dart';
 import 'package:getlery_client/widgets/delete_dialog.dart';
@@ -14,8 +15,12 @@ import 'package:getlery_client/widgets/grids/group_grid.dart';
 import 'package:getlery_client/widgets/sort_option_bottom_sheet.dart';
 import 'package:intl/intl.dart';
 
+// 개별 화면 네비게이터 키 추가
+final GlobalKey<NavigatorState> mainScreenNavigatorKey =
+    GlobalKey<NavigatorState>();
+
 class MainScreen extends GetView<ImageController> {
-  const MainScreen({super.key}); //이것도 바꿔야겟다ㅠ
+  const MainScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -52,37 +57,40 @@ class MainScreen extends GetView<ImageController> {
 
                   final startDate = controller.startDate.value;
                   final endDate = controller.endDate.value;
-                  int totalImages = controller.images
-                      .where((photo) =>
-                          photo.createdAt.isAfter(startDate) &&
-                          photo.createdAt.isBefore(endDate))
-                      .length;
 
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Image Show'),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                              '${DateFormat('yyyy/MM/dd').format(startDate)} - ${DateFormat('yyyy/MM/dd').format(endDate)}'),
+                  // int totalImages = controller.images
+                  //     .where((photo) =>
+                  //         photo.createdAt.isAfter(startDate) &&
+                  //         photo.createdAt.isBefore(endDate))
+                  //     .length;
+
+                  MyApp.mainNavigatorKey.currentState?.push(
+                    MaterialPageRoute(
+                      builder: (context) => AlertDialog(
+                        title: const Text('Image Show'),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                                '${DateFormat('yyyy/MM/dd').format(startDate)} - ${DateFormat('yyyy/MM/dd').format(endDate)}'),
+                          ],
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () =>
+                                MyApp.mainNavigatorKey.currentState?.pop(),
+                            child: Text('cancel'.tr),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              controller.fetchImages();
+                              MyApp.mainNavigatorKey.currentState?.pop();
+                            },
+                            child: Text('show'.tr),
+                          ),
                         ],
                       ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: Text('cancel'.tr),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            controller.fetchImages();
-                            Navigator.pop(context);
-                          },
-                          child: Text('show'.tr),
-                        ),
-                      ],
                     ),
                   );
                 },
@@ -91,11 +99,13 @@ class MainScreen extends GetView<ImageController> {
           ),
         ),
         actions: [
-          DeleteDialog(selectionController: selectionController), // 삭제 다이얼로그 추가
+          DeleteDialog(selectionController: selectionController),
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
-              Get.to(() => const SettingScreen());
+              MyApp.mainNavigatorKey.currentState?.push(
+                MaterialPageRoute(builder: (context) => const SettingScreen()),
+              );
             },
           ),
         ],
@@ -107,12 +117,12 @@ class MainScreen extends GetView<ImageController> {
 
           return Stack(
             children: [
-              SizedBox(height: 160, child: GroupGrid()), // 그룹 그리드 표시
+              const SizedBox(height: 160, child: GroupGrid()), // 그룹 그리드 표시
               const SizedBox(height: 16),
               if (controller.images.isEmpty)
                 const Center(
                   child: Text(
-                    '이미지가 없습니다.', // 이미지가 없을 때 표시
+                    '그룹 이미지가 없습니다.', // 이미지가 없을 때 표시
                     style: TextStyle(fontSize: 18, color: Colors.grey),
                   ),
                 )

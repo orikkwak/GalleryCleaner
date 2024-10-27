@@ -3,6 +3,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:getlery_client/main.dart';
 import 'package:getlery_client/models/screenshot_model.dart';
 
 class SetController extends GetxController {
@@ -77,7 +78,7 @@ class SetController extends GetxController {
             TextButton(
               child: Text('cancel'.tr),
               onPressed: () {
-                Navigator.of(context).pop();
+                MyApp.mainNavigatorKey.currentState?.pop();
               },
             ),
             TextButton(
@@ -85,7 +86,7 @@ class SetController extends GetxController {
               onPressed: () {
                 _deleteScreenshot(screenshotInfo.file);
                 _screenshotList.remove(screenshotInfo);
-                Navigator.of(context).pop();
+                MyApp.mainNavigatorKey.currentState?.pop();
               },
             ),
           ],

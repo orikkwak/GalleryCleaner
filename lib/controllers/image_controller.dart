@@ -13,6 +13,7 @@ class ImageController extends GetxController {
   RxList<ImageModel> images = RxList<ImageModel>();
   RxBool isLoading = false.obs;
   RxBool isImagesEmpty = false.obs; // 빈 이미지 체크 변수 추가
+  RxBool isSnackbarShown = false.obs; // snackbar 중복 방지 변수 추가
 
   // 날짜 필터
   Rx<DateTime> startDate =
@@ -33,7 +34,13 @@ class ImageController extends GetxController {
           await _imageService.fetchImages(startDate.value, endDate.value);
       isImagesEmpty.value = images.isEmpty; // 이미지 리스트가 비어있는지 확인
     } catch (e) {
-      Get.snackbar('Error', 'Failed to fetch images: $e');
+      if (!isSnackbarShown.value) {
+        isSnackbarShown.value = true;
+        Get.snackbar('Error', 'Failed to fetch images: $e');
+        Future.delayed(const Duration(seconds: 3), () {
+          isSnackbarShown.value = false;
+        });
+      }
       isImagesEmpty.value = true;
     } finally {
       isLoading.value = false;

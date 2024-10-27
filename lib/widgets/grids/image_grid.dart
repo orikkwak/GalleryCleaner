@@ -36,7 +36,8 @@ class ZoomableImageGridState extends State<ZoomableImageGrid> {
         });
       },
       child: GridView.builder(
-        key: const ValueKey("ZoomableImageGrid"),
+        key: ValueKey(
+            "ZoomableImageGrid-$_crossAxisCount-${widget.images.length}"),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: _crossAxisCount,
           crossAxisSpacing: 4.0,

@@ -2,7 +2,12 @@
 
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:getlery_client/main.dart';
 import 'package:photo_view/photo_view.dart';
+
+// groupViewerScreen 전용 Navigator 키 추가
+final GlobalKey<NavigatorState> groupViewerNavigatorKey =
+    GlobalKey<NavigatorState>();
 
 class OneImageScreen extends StatefulWidget {
   final List<File> imageFileList;
@@ -45,7 +50,7 @@ class OneImageScreenState extends State<OneImageScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context);
+            MyApp.mainNavigatorKey.currentState?.pop();
           },
         ),
       ),

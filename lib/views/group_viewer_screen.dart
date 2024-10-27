@@ -5,10 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:getlery_client/controllers/group_controller.dart';
 import 'package:getlery_client/controllers/selection_controller.dart';
+import 'package:getlery_client/main.dart';
 import 'package:getlery_client/models/group_model.dart';
-import 'package:getlery_client/services/image_grid.dart';
+import 'package:getlery_client/widgets/grids/image_grid.dart';
 import 'package:getlery_client/widgets/delete_dialog.dart';
 import 'package:photo_view/photo_view.dart';
+
+// groupViewerScreen 전용 Navigator 키 추가
+final GlobalKey<NavigatorState> groupViewerNavigatorKey =
+    GlobalKey<NavigatorState>();
 
 class GroupViewerScreen extends StatefulWidget {
   final GroupModel group;
@@ -43,7 +48,6 @@ class GroupViewerScreenState extends State<GroupViewerScreen> {
     );
   }
 
-  // 대표 이미지를 원본 비율로 크게 표시
   Widget _buildRepresentativeImage() {
     final representative = widget.group.representativeImage;
     if (representative == null) {
@@ -71,19 +75,17 @@ class GroupViewerScreenState extends State<GroupViewerScreen> {
     );
   }
 
-  // 나머지 이미지들을 조절 가능한 그리드로 표시
   Widget _buildRemainingImages() {
     return ZoomableImageGrid(
+      key: UniqueKey(),
       images: widget.group.images.map((imageModel) => imageModel.file).toList(),
       onTap: (index) =>
           _showFullImage(context, widget.group.images[index].file),
     );
   }
 
-  // 선택된 이미지 전체 화면으로 표시
   void _showFullImage(BuildContext context, Future<File?> imageFileFuture) {
-    Navigator.push(
-      context,
+    MyApp.mainNavigatorKey.currentState?.push(
       MaterialPageRoute(
         builder: (context) => Scaffold(
           appBar: AppBar(),

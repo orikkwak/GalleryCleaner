@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:getlery_client/controllers/group_controller.dart';
 import 'package:getlery_client/models/group_model.dart';
-import 'package:getlery_client/views/group_screen.dart';
+import 'package:getlery_client/views/group_viewer_screen.dart';
 
 class GroupGrid extends StatefulWidget {
   const GroupGrid({super.key});

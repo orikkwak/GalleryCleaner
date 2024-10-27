@@ -6,6 +6,7 @@ import 'package:photo_manager/photo_manager.dart';
 
 class GroupModel {
   final DateTime groupKey;
+  final String uniqueID; // 고유성을 위한 추가 필드
   final List<ImageModel> images;
   ImageModel? representativeImage; // NIMA 점수 기반 대표 이미지 필드
 
@@ -13,8 +14,7 @@ class GroupModel {
     required this.groupKey,
     required this.images,
     this.representativeImage,
-  }) {
-    // 생성자에서 대표 이미지가 없으면 NIMA 점수를 기준으로 선택
+  }) : uniqueID = '${groupKey.millisecondsSinceEpoch}-${images.length}' {
     representativeImage ??= _selectRepresentativeImage();
   }
 
@@ -60,6 +60,7 @@ class GroupModel {
       'groupKey': groupKey.toIso8601String(),
       'images': images.map((image) => image.toJson()).toList(),
       'representativeImage': representativeImage?.toJson(),
+      'uniqueID': uniqueID, // 고유성 유지
     };
   }
 }

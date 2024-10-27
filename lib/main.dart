@@ -36,16 +36,20 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  // 전역 네비게이터 키 (최상위 네비게이터에만 적용)
+  static final GlobalKey<NavigatorState> mainNavigatorKey =
+      GlobalKey<NavigatorState>();
+
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      navigatorKey: Get.key,
+      navigatorKey: mainNavigatorKey, // 설정
       initialRoute: '/',
       initialBinding: BindingsBuilder(() {
-        SelectionBinding(); // 초기 바인딩 등록
-        ImageBindings().dependencies(); // 이미지 관련 의존성
-        GroupBindings().dependencies(); // 그룹 관련 의존성
-        SetBindings().dependencies();
+        Get.put(SelectionBinding());
+        Get.put(ImageBindings());
+        Get.put(GroupBindings());
+        Get.put(SetBindings());
       }),
       getPages: appRoutes,
       defaultTransition: Transition.cupertino,
