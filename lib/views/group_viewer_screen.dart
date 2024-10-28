@@ -32,9 +32,6 @@ class GroupViewerScreen extends StatelessWidget {
             child: ZoomableImageGrid(
               images:
                   group.images.map((imageModel) => imageModel.file).toList(),
-              onTap: (int index) {
-                _showFullImage(context, group.images[index].file);
-              },
             ),
           ),
         ],

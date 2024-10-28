@@ -47,15 +47,6 @@ class MainScreen extends StatelessWidget {
                 ZoomableImageGrid(
                   images:
                       imageController.images.map((img) => img.file).toList(),
-                  onTap: (index) {
-                    // 클릭 시 OneImageScreen으로 이동
-                    _openOneImageScreen(context, imageController, index);
-                  },
-                  onLongPress: (index) {
-                    // 길게 누를 시 선택 모드로 전환
-                    _toggleSelectionMode(
-                        context, imageController.images[index]);
-                  },
                 ),
             ],
           );
