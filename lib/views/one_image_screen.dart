@@ -1,4 +1,3 @@
-// 파일 위치: lib/views/one_image_screen.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -25,15 +24,13 @@ class OneImageScreenState extends State<OneImageScreen> {
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(
-        initialPage:
-            widget.initialIndex); // A: 페이지 컨트롤러에 initialPage 설정 (최적화: 초기값 적용)
+    _pageController = PageController(initialPage: widget.initialIndex);
     _currentIndex = widget.initialIndex;
   }
 
   @override
   void dispose() {
-    _pageController.dispose(); // A: dispose를 통해 리소스 정리 최적화
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -48,32 +45,39 @@ class OneImageScreenState extends State<OneImageScreen> {
           onPressed: () => Get.back(),
         ),
       ),
-      body: PageView.builder(
-        // key: UniqueKey(), // 고유한 키 추가
-        controller: _pageController,
-        itemCount: widget.imageFileList.length,
-        itemBuilder: (context, index) {
-          final imageFile = widget.imageFileList[index]; // A: 현재 페이지의 이미지를 로드
+      body: GestureDetector(
+        onVerticalDragEnd: (details) {
+          if (details.primaryVelocity! > 0) {
+            // 세로로 아래로 스크롤 시 이전 페이지로 돌아가기
+            Get.back();
+          }
+        },
+        child: PageView.builder(
+          controller: _pageController,
+          itemCount: widget.imageFileList.length,
+          scrollDirection: Axis.horizontal, // 가로 스크롤 설정
+          itemBuilder: (context, index) {
+            final imageFile = widget.imageFileList[index];
 
-          return PhotoView(
-            // A: PhotoView를 사용하여 이미지 확대/축소 기능 제공 (사용자 경험 강화)
-            imageProvider: FileImage(imageFile),
-            minScale: PhotoViewComputedScale.contained * 0.5, // A: 최소 스케일 설정
-            maxScale: PhotoViewComputedScale.covered * 2.0, // A: 최대 스케일 설정
-            initialScale: PhotoViewComputedScale.contained, // A: 초기 스케일 설정
-            loadingBuilder: (context, event) => const Center(
-              child: CircularProgressIndicator(), // A: 이미지 로딩 중일 때 진행 표시
-            ),
-            errorBuilder: (context, error, stackTrace) => const Center(
-              child: Icon(Icons.error),
-            ),
-          );
-        },
-        onPageChanged: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
+            return PhotoView(
+              imageProvider: FileImage(imageFile),
+              minScale: PhotoViewComputedScale.contained * 0.5,
+              maxScale: PhotoViewComputedScale.covered * 2.0,
+              initialScale: PhotoViewComputedScale.contained,
+              loadingBuilder: (context, event) => const Center(
+                child: CircularProgressIndicator(),
+              ),
+              errorBuilder: (context, error, stackTrace) => const Center(
+                child: Icon(Icons.error),
+              ),
+            );
+          },
+          onPageChanged: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+        ),
       ),
     );
   }

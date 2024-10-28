@@ -14,8 +14,10 @@ class NetworkHelper {
   final String _nodeApiEndpoint = 'http://localhost:3000/nima/save_nima_score';
   final String _serverHealthCheckUrl = 'http://localhost:3000/health';
 
-  // 서버 URL 접근을 위한 getter
+  // 서버 URL과 엔드포인트 접근을 위한 getter
   String get serverUrl => _serverUrl;
+  String get flaskApiUrl => _flaskApiEndpoint;
+  String get nodeApiUrl => _nodeApiEndpoint;
 
   // 네트워크 연결 상태 확인
   Future<bool> isConnected() async {
@@ -37,10 +39,4 @@ class NetworkHelper {
       return false;
     }
   }
-
-  // Flask API URL 반환
-  String get flaskApiUrl => _flaskApiEndpoint;
-
-  // Node.js API URL 반환
-  String get nodeApiUrl => _nodeApiEndpoint;
 }

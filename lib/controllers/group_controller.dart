@@ -2,20 +2,18 @@
 
 import 'package:get/get.dart';
 import 'package:getlery_client/models/group_model.dart';
+import 'package:getlery_client/models/image_model.dart';
 import 'package:getlery_client/services/group_service.dart';
+import 'package:getlery_client/services/image_service.dart';
 import 'package:getlery_client/utils/network_helper.dart'; // 네트워크 유틸리티 추가
 
 class GroupController extends GetxController {
   final GroupService _groupService = GroupService();
+  final ImageService _imageService = ImageService(); // 이미지 서비스 추가
+  final NetworkHelper _networkHelper = NetworkHelper(); // NetworkHelper 추가
 
   RxList<GroupModel> groups = <GroupModel>[].obs;
   RxBool isLoading = false.obs;
-  Rx<DateTime> startDate =
-      DateTime.now().subtract(const Duration(days: 10)).obs;
-  Rx<DateTime> endDate = DateTime.now().obs;
-
-  // 선택된 그룹화 방식
-  RxString groupType = 'date'.obs;
   RxBool isSnackbarShown = false.obs; // snackbar 중복 호출 방지
 
   @override
@@ -30,24 +28,27 @@ class GroupController extends GetxController {
     super.onClose();
   }
 
-  // 서버 연결 여부에 따라 그룹화 방식 결정
+  // 그룹 목록 가져오기
   Future<void> fetchGroups() async {
     isLoading.value = true;
     try {
-      if (await _groupService.isServerConnected()) {
-        groups.value = await _groupService.fetchGroupsBySimilarity();
-      } else {
-        groups.value = await _groupService.fetchGroupsByDate(
-            startDate.value, endDate.value);
+      // 로컬 이미지 불러오기
+      List<ImageModel> localImages =
+          await _imageService.fetchLocalImages(0); // 첫 번째 페이지만 예시로 가져옴
+
+      // 로컬에서 그룹화 수행
+      groups.value = await _groupService.generateGroups(localImages);
+
+      // 서버에 연결되어 있는 경우에만 그룹을 서버에 저장 및 업데이트
+      if (await _networkHelper.isServerConnected()) {
+        // NetworkHelper 통해 연결 확인
+        await _groupService.updateGroupsOnServer(groups);
       }
     } catch (e) {
-      // 중복된 snackbar 호출 방지
       if (!isSnackbarShown.value) {
-        isSnackbarShown.value = true;
         isSnackbarShown.value = true;
         Get.snackbar('Error', 'Failed to fetch groups: $e');
 
-        // 일정 시간 후에 플래그를 초기화
         Future.delayed(const Duration(seconds: 3), () {
           isSnackbarShown.value = false;
         });
@@ -57,24 +58,11 @@ class GroupController extends GetxController {
     }
   }
 
-  // 그룹화 방식 변경
-  void changeGroupType(String type) {
-    groupType.value = type;
-    fetchGroups(); // 그룹화 방식에 따라 그룹 목록 새로 불러오기
-  }
-
   // 그룹 정렬 기능
   void sortGroups(bool newestFirst) {
     groups.sort((a, b) => newestFirst
         ? b.groupKey.compareTo(a.groupKey)
         : a.groupKey.compareTo(b.groupKey));
     groups.refresh();
-  }
-
-  // 날짜 필터 설정
-  void setDateRange(DateTime start, DateTime end) {
-    startDate.value = start;
-    endDate.value = end;
-    fetchGroups(); // 날짜 필터 변경 시 그룹 목록 갱신
   }
 }

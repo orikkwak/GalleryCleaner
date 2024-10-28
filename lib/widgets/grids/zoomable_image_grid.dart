@@ -5,11 +5,13 @@ import 'package:getlery_client/widgets/image_loader.dart';
 class ZoomableImageGrid extends StatefulWidget {
   final List<Future<File?>> images;
   final void Function(int) onTap;
+  final void Function(int)? onLongPress; // onLongPress 추가
 
   const ZoomableImageGrid({
     super.key,
     required this.images,
     required this.onTap,
+    this.onLongPress, // onLongPress 매개변수 추가
   });
 
   @override
@@ -37,6 +39,9 @@ class ZoomableImageGridState extends State<ZoomableImageGrid> {
         itemBuilder: (context, index) {
           return GestureDetector(
             onTap: () => widget.onTap(index),
+            onLongPress: widget.onLongPress != null
+                ? () => widget.onLongPress!(index)
+                : null, // onLongPress 콜백
             child: ImageLoader(imageFuture: widget.images[index]),
           );
         },

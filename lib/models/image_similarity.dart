@@ -1,3 +1,4 @@
+//C:\Users\Jenog\getlery\getlery_client\lib\models\image_similarity.dart
 import 'package:image/image.dart' as img;
 import 'package:photo_manager/photo_manager.dart';
 import 'dart:math' as math;

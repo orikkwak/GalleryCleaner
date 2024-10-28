@@ -1,5 +1,7 @@
 // 파일 위치: lib/controllers/image_controller.dart
 
+import 'dart:io';
+
 import 'package:get/get.dart';
 import 'package:getlery_client/models/image_model.dart';
 import 'package:getlery_client/services/image_service.dart';
@@ -63,5 +65,18 @@ class ImageController extends GetxController {
     _currentPage = 0;
     images.clear();
     fetchNextPage();
+  }
+
+  // ImageController에 파일 리스트를 변환해주는 메서드 추가
+  Future<List<File>> getImageFiles() async {
+    // 모든 Future<File?>을 기다린 후 null이 아닌 파일만 리스트로 반환
+    List<File> files = [];
+    for (var image in images) {
+      final file = await image.file; // file은 Future<File?>
+      if (file != null) {
+        files.add(file);
+      }
+    }
+    return files;
   }
 }

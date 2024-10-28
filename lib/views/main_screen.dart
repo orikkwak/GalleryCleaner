@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:getlery_client/controllers/group_controller.dart';
 import 'package:getlery_client/controllers/image_controller.dart';
 import 'package:getlery_client/controllers/selection_controller.dart';
+import 'package:getlery_client/models/image_model.dart';
+import 'package:getlery_client/views/one_image_screen.dart';
 import 'package:getlery_client/views/setting_screen.dart';
 import 'package:getlery_client/widgets/delete_dialog.dart';
 import 'package:getlery_client/widgets/grids/group_grid.dart';
@@ -45,8 +47,15 @@ class MainScreen extends StatelessWidget {
                 ZoomableImageGrid(
                   images:
                       imageController.images.map((img) => img.file).toList(),
-                  // onTap: (index) =>
-                  //     _showImageDialog(context, imageController, index),
+                  onTap: (index) {
+                    // 클릭 시 OneImageScreen으로 이동
+                    _openOneImageScreen(context, imageController, index);
+                  },
+                  onLongPress: (index) {
+                    // 길게 누를 시 선택 모드로 전환
+                    _toggleSelectionMode(
+                        context, imageController.images[index]);
+                  },
                 ),
             ],
           );
@@ -67,36 +76,21 @@ class MainScreen extends StatelessWidget {
     );
   }
 
-  // void _showImageDialog(
-  //     BuildContext context, ImageController controller, int index) async {
-  //   final DateTimeRange? selectedRange = await showDateRangePicker(
-  //     context: context,
-  //     firstDate: DateTime(2000),
-  //     lastDate: DateTime(2100),
-  //     initialDateRange: DateTimeRange(
-  //         start: controller.startDate.value, end: controller.endDate.value),
-  //   );
+  // 이미지를 클릭했을 때 OneImageScreen으로 이동하는 함수
+  void _openOneImageScreen(
+      BuildContext context, ImageController controller, int index) async {
+    // 비동기로 파일 리스트를 가져옴
+    List<File> imageFiles = await controller.getImageFiles();
 
-  //   if (selectedRange != null) {
-  //     controller.startDate.value = selectedRange.start;
-  //     controller.endDate.value = selectedRange.end;
-  //     controller.fetchImages();
-  //   }
+    Get.to(() => OneImageScreen(
+          imageFileList: imageFiles, // 변환된 List<File> 전달
+          initialIndex: index,
+        ));
+  }
 
-  //   final startDate = controller.startDate.value;
-  //   final endDate = controller.endDate.value;
-  //   Get.dialog(
-  //     AlertDialog(
-  //       title: const Text('Image Show'),
-  //       content: Text(
-  //           '${DateFormat('yyyy/MM/dd').format(startDate)} - ${DateFormat('yyyy/MM/dd').format(endDate)}'),
-  //       actions: [
-  //         TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr)),
-  //         TextButton(
-  //             onPressed: () => controller.fetchImages(),
-  //             child: Text('show'.tr)),
-  //       ],
-  //     ),
-  //   );
-  // }
+  // 이미지를 길게 눌렀을 때 선택 모드로 전환하는 함수
+  void _toggleSelectionMode(BuildContext context, ImageModel image) {
+    final selectionController = Get.find<SelectionController>();
+    selectionController.toggleSelection(image); // 선택 모드로 전환
+  }
 }
