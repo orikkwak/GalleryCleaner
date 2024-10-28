@@ -2,6 +2,7 @@
 
 import 'dart:typed_data';
 import 'package:getlery_client/models/image_model.dart';
+import 'package:getlery_client/models/image_selector.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 class GroupModel {
@@ -14,23 +15,7 @@ class GroupModel {
     required this.groupKey,
     required this.images,
     this.representativeImage,
-  }) : uniqueID = '${groupKey.millisecondsSinceEpoch}-${images.length}' {
-    representativeImage ??= _selectRepresentativeImage();
-  }
-
-  // NIMA 점수 기반 대표 이미지 선택 함수
-  ImageModel? _selectRepresentativeImage() {
-    if (images.isEmpty) return null;
-
-    // NIMA 점수가 가장 높은 이미지를 선택
-    images.sort((a, b) {
-      double nimaA = a.nimaScore ?? 0;
-      double nimaB = b.nimaScore ?? 0;
-      return nimaB.compareTo(nimaA);
-    });
-
-    return images.first; // 가장 높은 NIMA 점수를 가진 이미지 반환
-  }
+  }) : uniqueID = '${groupKey.millisecondsSinceEpoch}-${images.length}';
 
   // 대표 이미지의 썸네일을 가져오는 함수
   Future<Uint8List?> get representativeThumbnail async {
@@ -41,7 +26,15 @@ class GroupModel {
     return null;
   }
 
-  // A: fromJson 메서드 (JSON 데이터를 GroupModel로 변환)
+  void selectRepresentativeByNima() {
+    images.sort((a, b) => (b.nimaScore ?? 0).compareTo(a.nimaScore ?? 0));
+    representativeImage = images.first;
+  }
+
+  Future<void> selectRepresentativeByPixels() async {
+    representativeImage = await ImageSelector.selectRepresentativeImage(images);
+  }
+
   factory GroupModel.fromJson(Map<String, dynamic> json) {
     return GroupModel(
       groupKey: DateTime.parse(json['groupKey']),
@@ -50,17 +43,16 @@ class GroupModel {
           .toList(),
       representativeImage: json['representativeImage'] != null
           ? ImageModel.fromJson(json['representativeImage'])
-          : null, // 대표 이미지가 있으면 변환
+          : null,
     );
   }
 
-  // B: toJson 메서드 (GroupModel을 JSON으로 변환)
   Map<String, dynamic> toJson() {
     return {
       'groupKey': groupKey.toIso8601String(),
       'images': images.map((image) => image.toJson()).toList(),
       'representativeImage': representativeImage?.toJson(),
-      'uniqueID': uniqueID, // 고유성 유지
+      'uniqueID': uniqueID,
     };
   }
 }

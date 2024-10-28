@@ -1,3 +1,4 @@
+//C:\Users\Jenog\getlery\getlery_client\lib\models\image_selector.dart
 import 'package:getlery_client/models/image_model.dart';
 import 'package:image/image.dart' as img;
 import 'dart:math' as math;

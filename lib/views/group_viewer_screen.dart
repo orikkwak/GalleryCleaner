@@ -41,47 +41,16 @@ class GroupViewerScreen extends StatelessWidget {
 
   Widget _buildRepresentativeImage() {
     final representative = group.representativeImage;
-    if (representative == null) {
-      return const Center(child: Text('No representative image available'));
-    }
-    return AspectRatio(
-      aspectRatio: (representative.assetEntity.width /
-              representative.assetEntity.height) ??
-          1.0,
-      child: FutureBuilder<File?>(
-        future: representative.file,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done &&
-              snapshot.hasData) {
-            return PhotoView(imageProvider: FileImage(snapshot.data!));
-          } else {
-            return const Center(child: CircularProgressIndicator());
-          }
-        },
-      ),
-    );
-  }
-
-  void _showFullImage(BuildContext context, Future<File?> imageFileFuture) {
-    Get.to(
-      () => Scaffold(
-        appBar: AppBar(),
-        body: FutureBuilder<File?>(
-          future: imageFileFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done &&
-                snapshot.hasData) {
-              return PhotoView(
-                imageProvider: FileImage(snapshot.data!),
-                minScale: PhotoViewComputedScale.contained * 0.5,
-                maxScale: PhotoViewComputedScale.covered * 2.0,
-              );
-            } else {
-              return const Center(child: CircularProgressIndicator());
-            }
-          },
-        ),
-      ),
+    return FutureBuilder<File?>(
+      future: representative?.file,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done &&
+            snapshot.hasData) {
+          return PhotoView(imageProvider: FileImage(snapshot.data!));
+        } else {
+          return const Center(child: CircularProgressIndicator());
+        }
+      },
     );
   }
 }
