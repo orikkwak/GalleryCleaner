@@ -13,8 +13,10 @@ class NetworkHelper {
   final String _flaskApiEndpoint = 'http://localhost:5000/get_nima_score';
   final String _nodeApiEndpoint = 'http://localhost:3000/nima/save_nima_score';
   final String _serverHealthCheckUrl = 'http://localhost:3000/health';
+  final String _categoryApiEndpoint = 'http://localhost:3000/api/categories';
 
-  // 서버 URL과 엔드포인트 접근을 위한 getter
+  String get categoryApiUrl =>
+      _categoryApiEndpoint; // 서버 URL과 엔드포인트 접근을 위한 getter
   String get serverUrl => _serverUrl;
   String get flaskApiUrl => _flaskApiEndpoint;
   String get nodeApiUrl => _nodeApiEndpoint;
@@ -31,6 +33,21 @@ class NetworkHelper {
 
     try {
       final response = await http.get(Uri.parse(_serverHealthCheckUrl)).timeout(
+            const Duration(seconds: 5),
+            onTimeout: () => throw Exception("Timeout"),
+          );
+      return response.statusCode == 200;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  // 카테고리 정보를 가져오는 메서드 추가 가능
+  Future<bool> fetchCategories() async {
+    if (!await isConnected()) return false;
+
+    try {
+      final response = await http.get(Uri.parse(categoryApiUrl)).timeout(
             const Duration(seconds: 5),
             onTimeout: () => throw Exception("Timeout"),
           );

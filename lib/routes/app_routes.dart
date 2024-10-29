@@ -1,10 +1,14 @@
 import 'dart:io';
 import 'package:get/get.dart';
+import 'package:getlery_client/controllers/category_controller.dart';
 import 'package:getlery_client/controllers/group_controller.dart';
 import 'package:getlery_client/controllers/image_controller.dart';
 import 'package:getlery_client/controllers/selection_controller.dart';
 import 'package:getlery_client/controllers/set_controller.dart';
+import 'package:getlery_client/models/category_model.dart';
 import 'package:getlery_client/models/group_model.dart';
+import 'package:getlery_client/views/category_detail_screen.dart';
+import 'package:getlery_client/views/category_screen.dart';
 import 'package:getlery_client/views/main_screen.dart';
 import 'package:getlery_client/views/one_image_screen.dart';
 import 'package:getlery_client/views/setting_screen.dart';
@@ -26,7 +30,8 @@ final List<GetPage> appRoutes = [
   GetPage(
     name: '/image',
     page: () {
-      final List<File> imageFileList = Get.arguments['imageFileList'] as List<File>;
+      final List<File> imageFileList =
+          Get.arguments['imageFileList'] as List<File>;
       final int initialIndex = Get.arguments['initialIndex'] as int;
 
       return OneImageScreen(
@@ -66,8 +71,10 @@ final List<GetPage> appRoutes = [
   GetPage(
     name: '/sortOptions',
     page: () {
-      final ImageController imageController = Get.arguments['imageController'] as ImageController;
-      final GroupController groupController = Get.arguments['groupController'] as GroupController;
+      final ImageController imageController =
+          Get.arguments['imageController'] as ImageController;
+      final GroupController groupController =
+          Get.arguments['groupController'] as GroupController;
 
       return SortOptionBottomSheet(
         imageController: imageController,
@@ -77,6 +84,26 @@ final List<GetPage> appRoutes = [
     binding: BindingsBuilder(() {
       Get.lazyPut(() => ImageController());
       Get.lazyPut(() => GroupController());
+    }),
+  ),
+
+  // 카테고리 화면 추가
+  GetPage(
+    name: '/categories',
+    page: () => CategoryScreen(),
+    binding: BindingsBuilder(() {
+      Get.lazyPut(() => CategoryController());
+    }),
+  ),
+
+  GetPage(
+    name: '/categoryDetail',
+    page: () {
+      final category = Get.arguments['category'] as Category;
+      return CategoryDetailScreen(category: category);
+    },
+    binding: BindingsBuilder(() {
+      Get.lazyPut(() => CategoryController());
     }),
   ),
 ];

@@ -16,6 +16,7 @@ import 'package:getlery_client/controllers/set_controller.dart';
 import 'package:getlery_client/repositories/image_repository.dart';
 import 'package:getlery_client/routes/app_routes.dart';
 import 'package:getlery_client/services/permission_service.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,6 +29,8 @@ void main() async {
     Get.put(ImageController());
     Get.put(GroupController());
     Get.put(SetController());
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp();
 
     runApp(const MyApp());
   } else {
