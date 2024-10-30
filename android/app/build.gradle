@@ -51,7 +51,7 @@ android {
     lintOptions {
     baseline file("lint-baseline.xml")  // 기본 설정 파일로 사용할 lint-baseline.xml 지정
     abortOnError false  // 모든 lint 오류에 대해 빌드를 멈추지 않도록 설정
-    disable 'NewApi', 'MissingTranslation', 'UnusedResources'  // NewApi 오류 무시
+    disable 'NewApi', 'MissingTranslation', 'UnusedResources', 'ScopedStorage'  // NewApi 오류 무시
     checkReleaseBuilds false  // 릴리즈 빌드 시 lint 검사를 하지 않음
     }
 

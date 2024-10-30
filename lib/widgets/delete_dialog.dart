@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:getlery_client/controllers/image_controller.dart';
 import 'package:getlery_client/controllers/selection_controller.dart';
 
 class DeleteDialog extends StatelessWidget {
   final SelectionController selectionController;
+  final ImageController imageController = Get.find<ImageController>();
 
-  const DeleteDialog({super.key, required this.selectionController});
+  DeleteDialog({super.key, required this.selectionController});
 
   @override
   Widget build(BuildContext context) {
@@ -22,8 +24,11 @@ class DeleteDialog extends StatelessWidget {
                 TextButton(onPressed: Get.back, child: const Text('No')),
                 TextButton(
                   onPressed: () async {
-                    await selectionController.deleteSelectedImages();
+                    await imageController.deleteSelectedImages(
+                      selectionController.selectedItems.toList(),
+                    );
                     Get.back();
+                    selectionController.clearSelection(); // 선택 초기화
                   },
                   child: const Text('Delete'),
                 ),

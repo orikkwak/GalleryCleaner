@@ -1,5 +1,4 @@
-// 파일 위치: lib/models/group_model.dart
-
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:getlery_client/models/image_model.dart';
 import 'package:getlery_client/models/image_selector.dart';
@@ -20,10 +19,16 @@ class GroupModel {
   // 대표 이미지의 썸네일을 가져오는 함수
   Future<Uint8List?> get representativeThumbnail async {
     if (representativeImage != null) {
+      final representativeFile = File(representativeImage!.filePath);
       return await representativeImage!.assetEntity
           .thumbnailDataWithSize(const ThumbnailSize(200, 200));
     }
     return null;
+  }
+
+  // 대표 이미지의 파일 경로를 반환하는 함수
+  String? get representativeImagePath {
+    return representativeImage?.filePath;
   }
 
   void selectRepresentativeByNima() {

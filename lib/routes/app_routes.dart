@@ -26,12 +26,12 @@ final List<GetPage> appRoutes = [
       Get.lazyPut(() => SelectionController());
     }),
   ),
+
   // 단일 이미지 뷰어 스크린
   GetPage(
     name: '/image',
     page: () {
-      final List<File> imageFileList =
-          Get.arguments['imageFileList'] as List<File>;
+      final List<File> imageFileList = Get.arguments['imageFileList'] as List<File>;
       final int initialIndex = Get.arguments['initialIndex'] as int;
 
       return OneImageScreen(
@@ -71,10 +71,8 @@ final List<GetPage> appRoutes = [
   GetPage(
     name: '/sortOptions',
     page: () {
-      final ImageController imageController =
-          Get.arguments['imageController'] as ImageController;
-      final GroupController groupController =
-          Get.arguments['groupController'] as GroupController;
+      final ImageController imageController = Get.arguments['imageController'] as ImageController;
+      final GroupController groupController = Get.arguments['groupController'] as GroupController;
 
       return SortOptionBottomSheet(
         imageController: imageController,
@@ -87,7 +85,7 @@ final List<GetPage> appRoutes = [
     }),
   ),
 
-  // 카테고리 화면 추가
+  // 전체 카테고리를 표시하는 카테고리 화면
   GetPage(
     name: '/categories',
     page: () => CategoryScreen(),
@@ -96,6 +94,7 @@ final List<GetPage> appRoutes = [
     }),
   ),
 
+  // 특정 카테고리의 상세 화면
   GetPage(
     name: '/categoryDetail',
     page: () {

@@ -10,19 +10,19 @@ class ImageModel {
   final AssetEntity assetEntity;
   final DateTime createdAt;
   Uint8List? _thumbnailData;
-  File? _file;
-  double? nimaScore; // NIMA 점수 필드 추가
+  double? nimaScore; // NIMA 점수 필드 
+  final String filePath; // 로컬 파일 경로 필드 추가 (문자열로 저장)
+  bool isDeleteScheduled; // 삭제 예정 상태 필드 추가
 
   ImageModel({
     required this.id,
     required this.assetEntity,
     required this.createdAt,
     this.nimaScore, // NIMA 점수 추가
+    required this.filePath, // filePath 필수 매개변수로 변경
+    this.isDeleteScheduled = false, // 기본값으로 false 설정
     Uint8List? thumbnailData,
   });
-
-  // A: filePath 속성 추가 (오류 해결용)
-  String get filePath => assetEntity.relativePath ?? '';
 
   // JSON 데이터를 통해 ImageModel 객체 생성 (NIMA 점수 포함)
   factory ImageModel.fromJson(Map<String, dynamic> json) {
@@ -47,6 +47,8 @@ class ImageModel {
         subtype: json['subtype'] ?? 0,
       ),
       nimaScore: json['nimaScore'], // NIMA 점수 추가
+      filePath: json['filePath'] ?? '', // filePath 추가
+      isDeleteScheduled: json['isDeleteScheduled'] ?? false,
     );
   }
 
@@ -70,6 +72,8 @@ class ImageModel {
       'mimeType': assetEntity.mimeType,
       'subtype': assetEntity.subtype,
       'nimaScore': nimaScore, // NIMA 점수 포함
+      'filePath': filePath, // filePath 추가
+      'isDeleteScheduled': isDeleteScheduled,
     };
   }
 
@@ -88,16 +92,6 @@ class ImageModel {
     return _thumbnailData;
   }
 
-  // 이미지 파일을 가져오는 함수 (Lazy Loading 적용)
-  Future<File?> get file async {
-    if (_file == null) {
-      try {
-        _file = await assetEntity.file;
-      } catch (e) {
-        print("Failed to load file: $e");
-        _file = null;
-      }
-    }
-    return _file;
-  }
+  // 파일 경로를 사용하여 File 객체를 반환
+  File get file => File(filePath);
 }

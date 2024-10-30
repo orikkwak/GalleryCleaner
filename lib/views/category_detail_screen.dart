@@ -28,12 +28,12 @@ class CategoryViewerScreen extends StatelessWidget {
         children: [
           _buildRepresentativeImage(),
           const SizedBox(height: 16),
-          Expanded(
-            child: ZoomableImageGrid(
-              images:
-                  category.imageUrls.map((imageUrl) => File(imageUrl)).toList(),
-            ),
-          ),
+          // Expanded(
+          //   // child: ZoomableImageGrid(
+          //   //   images:
+          //   //       category.imageUrls.map((imageUrl) => File(imageUrl)).toList(),
+          //   // ),
+          // ),
         ],
       ),
     );

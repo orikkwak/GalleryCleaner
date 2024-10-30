@@ -30,8 +30,7 @@ class GroupViewerScreen extends StatelessWidget {
           const SizedBox(height: 16),
           Expanded(
             child: ZoomableImageGrid(
-              images:
-                  group.images.map((imageModel) => imageModel.file).toList(),
+              images: group.images,
             ),
           ),
         ],
@@ -40,17 +39,12 @@ class GroupViewerScreen extends StatelessWidget {
   }
 
   Widget _buildRepresentativeImage() {
-    final representative = group.representativeImage;
-    return FutureBuilder<File?>(
-      future: representative?.file,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done &&
-            snapshot.hasData) {
-          return PhotoView(imageProvider: FileImage(snapshot.data!));
-        } else {
-          return const Center(child: CircularProgressIndicator());
-        }
-      },
+    final representativeImagePath = group.representativeImagePath;
+    if (representativeImagePath == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    return PhotoView(
+      imageProvider: FileImage(File(representativeImagePath)),
     );
   }
 }

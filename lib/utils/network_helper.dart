@@ -1,5 +1,4 @@
-// 파일 위치: lib/utils/network_helper.dart
-
+import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:http/http.dart' as http;
 
@@ -15,8 +14,7 @@ class NetworkHelper {
   final String _serverHealthCheckUrl = 'http://localhost:3000/health';
   final String _categoryApiEndpoint = 'http://localhost:3000/api/categories';
 
-  String get categoryApiUrl =>
-      _categoryApiEndpoint; // 서버 URL과 엔드포인트 접근을 위한 getter
+  String get categoryApiUrl => _categoryApiEndpoint;
   String get serverUrl => _serverUrl;
   String get flaskApiUrl => _flaskApiEndpoint;
   String get nodeApiUrl => _nodeApiEndpoint;
@@ -42,18 +40,61 @@ class NetworkHelper {
     }
   }
 
-  // 카테고리 정보를 가져오는 메서드 추가 가능
-  Future<bool> fetchCategories() async {
-    if (!await isConnected()) return false;
+  // 공통 GET 요청 메서드
+  Future<http.Response> getRequest(String endpoint) async {
+    if (!await isConnected()) throw Exception("No internet connection");
 
-    try {
-      final response = await http.get(Uri.parse(categoryApiUrl)).timeout(
-            const Duration(seconds: 5),
-            onTimeout: () => throw Exception("Timeout"),
-          );
-      return response.statusCode == 200;
-    } catch (_) {
-      return false;
+    final url = Uri.parse('$_serverUrl/$endpoint');
+    final response = await http.get(url).timeout(
+          const Duration(seconds: 10),
+          onTimeout: () => throw Exception("Request timed out"),
+        );
+
+    if (response.statusCode != 200) {
+      throw Exception("Failed GET request: ${response.statusCode}");
     }
+    return response;
+  }
+
+  // 공통 POST 요청 메서드
+  Future<http.Response> postRequest(
+      String endpoint, Map<String, dynamic> data) async {
+    if (!await isConnected()) throw Exception("No internet connection");
+
+    final url = Uri.parse('$_serverUrl/$endpoint');
+    final response = await http.post(
+      url,
+      body: jsonEncode(data),
+      headers: {'Content-Type': 'application/json'},
+    ).timeout(
+      const Duration(seconds: 10),
+      onTimeout: () => throw Exception("Request timed out"),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception("Failed POST request: ${response.statusCode}");
+    }
+    return response;
+  }
+
+  // 공통 PUT 요청 메서드 추가
+  Future<http.Response> putRequest(
+      String endpoint, Map<String, dynamic> data) async {
+    if (!await isConnected()) throw Exception("No internet connection");
+
+    final url = Uri.parse('$_serverUrl/$endpoint');
+    final response = await http.put(
+      url,
+      body: jsonEncode(data),
+      headers: {'Content-Type': 'application/json'},
+    ).timeout(
+      const Duration(seconds: 10),
+      onTimeout: () => throw Exception("Request timed out"),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception("Failed PUT request: ${response.statusCode}");
+    }
+    return response;
   }
 }

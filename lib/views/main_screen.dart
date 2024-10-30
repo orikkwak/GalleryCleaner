@@ -3,26 +3,68 @@ import 'package:get/get.dart';
 import 'package:getlery_client/controllers/group_controller.dart';
 import 'package:getlery_client/controllers/image_controller.dart';
 import 'package:getlery_client/controllers/selection_controller.dart';
+import 'package:getlery_client/utils/network_helper.dart';
 import 'package:getlery_client/views/setting_screen.dart';
+import 'package:getlery_client/views/category_screen.dart';
+import 'package:getlery_client/views/delete_scheduled_images_screen.dart';
 import 'package:getlery_client/widgets/delete_dialog.dart';
-import 'package:getlery_client/widgets/grids/group_grid.dart';
-import 'package:getlery_client/widgets/grids/zoomable_image_grid.dart';
+import 'package:getlery_client/widgets/navigation_bar_widget.dart';
 import 'package:getlery_client/widgets/sort_option_bottom_sheet.dart';
+import 'package:getlery_client/widgets/main_content.dart';
 
-class MainScreen extends StatelessWidget {
+class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
+
+  @override
+  _MainScreenState createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
+  bool isConnected = false;
+  bool hasScheduledImages = false;
+
+  @override
+  void initState() {
+    super.initState();
+    initializeConnectionStatus();
+  }
+
+  Future<void> initializeConnectionStatus() async {
+    isConnected = await NetworkHelper().isServerConnected();
+    setState(() {});
+
+    if (isConnected) {
+      final scheduledImages =
+          await Get.find<ImageController>().loadScheduledImages();
+      setState(() {
+        hasScheduledImages = scheduledImages.isNotEmpty;
+      });
+    }
+  }
+
+  void _onPageChanged(int page) {
+    setState(() {
+      _currentPage = page;
+    });
+  }
+
+  void _navigateToPage(int page) {
+    _pageController.jumpToPage(page);
+    _onPageChanged(page);
+  }
 
   @override
   Widget build(BuildContext context) {
     final imageController = Get.find<ImageController>();
-    final groupController = Get.find<GroupController>();
-    final selectionController = Get.find<SelectionController>();
+    final groupController = Get.find<GroupController>(); // 추가된 부분
+    final hasCategories = isConnected;
 
     return Scaffold(
       appBar: AppBar(
-        title: Obx(() => Text('Gallery (${imageController.images.length})')),
+        title: Text('Gallery (${imageController.images.length})'),
         actions: [
-          DeleteDialog(selectionController: selectionController),
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () => Get.to(() => const SettingScreen()),
@@ -30,23 +72,28 @@ class MainScreen extends StatelessWidget {
         ],
       ),
       body: SafeArea(
-        child: Obx(() {
-          return Stack(
-            children: [
-              const SizedBox(height: 160, child: GroupGrid()), // 그룹 그리드
-              const SizedBox(height: 16),
-              if (imageController.images.isEmpty)
-                const Center(
-                    child: Text('이미지가 없습니다.',
-                        style: TextStyle(fontSize: 18, color: Colors.grey)))
-              else
-                ZoomableImageGrid(
-                  images:
-                      imageController.images.map((img) => img.file).toList(),
-                ),
-            ],
-          );
-        }),
+        child: Column(
+          children: [
+            if (hasCategories || hasScheduledImages) // 네비게이션 바 표시 조건
+              NavigationBarWidget(
+                currentPage: _currentPage,
+                onPageChanged: _onPageChanged,
+                hasCategories: hasCategories,
+                hasScheduledImages: hasScheduledImages,
+              ),
+            Expanded(
+              child: PageView(
+                controller: _pageController,
+                onPageChanged: _onPageChanged,
+                children: [
+                  MainContent(imageController: imageController),
+                  if (hasCategories) const CategoryScreen(category),
+                  if (hasScheduledImages) const ScheduledImagesScreen(),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

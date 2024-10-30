@@ -31,7 +31,8 @@ class GroupGrid extends StatelessWidget {
         itemBuilder: (BuildContext context, int index) {
           return GroupGridItem(
             group: groupedPhotos[index],
-            onTap: () => Get.to(() => GroupViewerScreen(group: groupedPhotos[index])),
+            onTap: () =>
+                Get.to(() => GroupViewerScreen(group: groupedPhotos[index])),
           );
         },
       );
@@ -58,7 +59,7 @@ class GroupGridItem extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: FutureBuilder<File?>(
-              future: group.representativeImage?.file,
+              future: _getRepresentativeFile(), // 파일을 반환하는 메서드 사용
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.done &&
                     snapshot.hasData) {
@@ -93,6 +94,15 @@ class GroupGridItem extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  // 대표 이미지 파일을 비동기로 가져오는 함수
+  Future<File?> _getRepresentativeFile() async {
+    final path = group.representativeImagePath;
+    if (path != null) {
+      return File(path);
+    }
+    return null;
   }
 
   String _getGroupName(DateTime? groupKey) {
