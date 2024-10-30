@@ -4,22 +4,22 @@ import 'package:flutter/material.dart';
 
 class NavigationBarWidget extends StatelessWidget {
   final int currentPage;
-  final Function(int) onPageChanged;
+  final Function(int) onPageSelected; // 콜백 함수
   final bool hasCategories;
   final bool hasScheduledImages;
 
   const NavigationBarWidget({
-    super.key,
+    Key? key,
     required this.currentPage,
-    required this.onPageChanged,
+    required this.onPageSelected,
     required this.hasCategories,
     required this.hasScheduledImages,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    // 네비게이션 라벨 설정
     List<String> labels = ['메인'];
-
     if (hasCategories) {
       labels.add('카테고리');
     }
@@ -31,7 +31,7 @@ class NavigationBarWidget extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: List.generate(labels.length, (index) {
         return GestureDetector(
-          onTap: () => onPageChanged(index),
+          onTap: () => onPageSelected(index), // 클릭 시 페이지 이동 콜백 호출
           child: Text(
             labels[index],
             style: TextStyle(

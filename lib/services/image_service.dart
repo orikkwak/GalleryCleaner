@@ -11,6 +11,7 @@ import 'dart:convert';
 class ImageService {
   final ImageRepository _repository = ImageRepository();
   static const int _pageSize = 150; // 한 번에 가져올 이미지 수
+  final networkHelper = NetworkHelper();
 
   // 로컬 이미지 페이징 및 정렬하여 가져오기
   Future<List<ImageModel>> fetchLocalImages(int pageIndex,
@@ -105,6 +106,24 @@ class ImageService {
         }
       }
     }
+  }
+
+  // 카테고리 이름 업데이트
+  Future<void> updateCategoryName(String id, String newName) async {
+    // PUT 요청을 통해 서버의 카테고리 이름 업데이트
+    await networkHelper.putRequest(
+      '${networkHelper.categoryApiUrl}/$id',
+      {'name': newName},
+    );
+  }
+
+  // 카테고리에 이미지 추가
+  Future<void> addImageToCategory(String categoryId, String imageUrl) async {
+    // POST 요청을 통해 서버의 카테고리에 이미지 추가
+    await networkHelper.postRequest(
+      '${networkHelper.categoryApiUrl}/$categoryId/add-image',
+      {'imageUrl': imageUrl},
+    );
   }
 
   // 삭제 예정 이미지를 불러오는 메서드

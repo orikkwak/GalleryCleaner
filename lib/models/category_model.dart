@@ -1,16 +1,15 @@
-// Category 모델
-import 'dart:io';
+import 'image_model.dart';
 
 class Category {
-  final String id;
-  final String name;
-  final List<String> imageUrls;
+  String id;
+  String name;
+  List<ImageModel> images; // ImageModel 리스트로 변경
   bool isCustomName;
 
   Category({
     required this.id,
     required this.name,
-    required this.imageUrls,
+    required this.images, // ImageModel 리스트로 변경
     this.isCustomName = false,
   });
 
@@ -18,11 +17,16 @@ class Category {
     return Category(
       id: json['_id'],
       name: json['name'],
-      imageUrls: List<String>.from(json['imageUrls']),
+      images: (json['images'] as List)
+          .map((imageJson) => ImageModel.fromJson(imageJson))
+          .toList(),
       isCustomName: json['isCustomName'] ?? false,
     );
   }
 
-  // imageUrls를 File 객체로 변환하는 헬퍼 메서드
-  List<File> get imageFiles => imageUrls.map((url) => File(url)).toList();
+  // 이름을 업데이트하는 메서드
+  void updateName(String newName) {
+    name = newName;
+    isCustomName = true;
+  }
 }

@@ -31,7 +31,8 @@ final List<GetPage> appRoutes = [
   GetPage(
     name: '/image',
     page: () {
-      final List<File> imageFileList = Get.arguments['imageFileList'] as List<File>;
+      final List<File> imageFileList =
+          Get.arguments['imageFileList'] as List<File>;
       final int initialIndex = Get.arguments['initialIndex'] as int;
 
       return OneImageScreen(
@@ -71,8 +72,10 @@ final List<GetPage> appRoutes = [
   GetPage(
     name: '/sortOptions',
     page: () {
-      final ImageController imageController = Get.arguments['imageController'] as ImageController;
-      final GroupController groupController = Get.arguments['groupController'] as GroupController;
+      final ImageController imageController =
+          Get.arguments['imageController'] as ImageController;
+      final GroupController groupController =
+          Get.arguments['groupController'] as GroupController;
 
       return SortOptionBottomSheet(
         imageController: imageController,
@@ -85,10 +88,11 @@ final List<GetPage> appRoutes = [
     }),
   ),
 
-  // 전체 카테고리를 표시하는 카테고리 화면
+// 전체 카테고리를 표시하는 카테고리 목록 화면
   GetPage(
     name: '/categories',
-    page: () => CategoryScreen(),
+    page: () =>
+        CategoryScreen(categories: Get.find<CategoryController>().categories),
     binding: BindingsBuilder(() {
       Get.lazyPut(() => CategoryController());
     }),
@@ -102,7 +106,7 @@ final List<GetPage> appRoutes = [
       return CategoryDetailScreen(category: category);
     },
     binding: BindingsBuilder(() {
-      Get.lazyPut(() => CategoryController());
+      Get.lazyPut<CategoryController>(() => CategoryController());
     }),
   ),
 ];

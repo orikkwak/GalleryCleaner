@@ -2,14 +2,17 @@
 
 import 'dart:io';
 import 'package:get/get.dart';
+import 'package:getlery_client/controllers/category_controller.dart';
 import 'package:getlery_client/models/image_model.dart';
 import 'package:getlery_client/services/image_service.dart';
 
 class ImageController extends GetxController {
   final ImageService _imageService = ImageService();
   final RxList<ImageModel> images = RxList<ImageModel>();
-  final RxList<ImageModel> scheduledImages =
-      RxList<ImageModel>(); // 삭제 예정 이미지 목록 추가
+  final CategoryController _categoryController = Get.find<CategoryController>();
+  final RxList<ImageModel> scheduledImages = RxList<
+      ImageModel>(); // 삭제 예정 이미지 목록 추가final CategoryController _categoryController = Get.find<CategoryController>();
+
   final isLoading = false.obs;
   int _currentPage = 0; // 페이징 인덱스
 
@@ -98,6 +101,14 @@ class ImageController extends GetxController {
     }
   }
 
+  // 카테고리에 새로운 이미지 추가
+  Future<void> addNewImageToCategory(
+      String categoryId, ImageModel image) async {
+    images.add(image);
+    await _categoryController.addImageToCategory(categoryId, image);
+  }
+
+//정렬 걍 냅둬 얘는
   void sortImages(bool newestFirst) {
     images.sort((a, b) {
       if (newestFirst) {
