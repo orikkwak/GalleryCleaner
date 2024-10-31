@@ -35,11 +35,9 @@ class _MainScreenState extends State<MainScreen> {
     setState(() {});
 
     if (isConnected) {
-      final scheduledImages =
-          await Get.find<ImageController>().loadScheduledImages();
-      setState(() {
-        hasScheduledImages = scheduledImages.isNotEmpty;
-      });
+      final imageController = Get.find<ImageController>();
+      await imageController.loadScheduledImages();
+      setState(() {}); // 상태 업데이트를 통해 `hasScheduledImages` 반영
     }
   }
 
@@ -63,7 +61,7 @@ class _MainScreenState extends State<MainScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Gallery (${imageController.images.length})'),
+        title: Text('Gallery'),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),

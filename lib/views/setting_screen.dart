@@ -36,6 +36,17 @@ class SettingScreen extends StatelessWidget {
                     },
                   )),
               const SizedBox(height: 20),
+              const Text('Notification Settings',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              Obx(() => SwitchListTile(
+                    title: const Text('Enable Push Notifications'),
+                    value: settingController.isPushNotificationEnabled.value,
+                    onChanged: (value) {
+                      settingController.togglePushNotification();
+                    },
+                  )),
+              const SizedBox(height: 20),
               const Text('Display Settings',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),

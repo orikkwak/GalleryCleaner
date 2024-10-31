@@ -3,15 +3,16 @@
 import 'package:get/get.dart';
 import 'package:getlery_client/models/group_model.dart';
 import 'package:getlery_client/models/image_model.dart';
+import 'package:getlery_client/services/image_labeling_service.dart'; // 라벨링 서비스 추가
 import 'package:getlery_client/services/group_service.dart';
 import 'package:getlery_client/services/image_service.dart';
-import 'package:getlery_client/services/nima_score_service.dart';
 import 'package:getlery_client/utils/network_helper.dart'; // 네트워크 유틸리티 추가
 
 class GroupController extends GetxController {
   final GroupService _groupService = GroupService();
   final ImageService _imageService = ImageService(); // 이미지 서비스 추가
-  final NimaScoreService _nimaScoreService = NimaScoreService();
+  final ImageLabelingService _labelingService =
+      ImageLabelingService(); // 라벨링 서비스 추가
   final NetworkHelper _networkHelper = NetworkHelper(); // NetworkHelper 추가
 
   RxList<GroupModel> groups = <GroupModel>[].obs;
@@ -28,10 +29,14 @@ class GroupController extends GetxController {
     isLoading.value = true;
     try {
       List<ImageModel> localImages = await _imageService.fetchLocalImages(0);
+
+      // 라벨링 실행
+      await _labelingService.labelAndSaveImages(localImages);
+
+      // 라벨링 결과에 따라 그룹 생성
       groups.value = await _groupService.generateGroups(localImages);
 
       if (await _networkHelper.isServerConnected()) {
-        await _nimaScoreService.updateNimaScores(localImages);
         for (var group in groups) {
           group.selectRepresentativeByNima();
         }

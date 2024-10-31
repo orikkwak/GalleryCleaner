@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:getlery_client/models/screenshot_model.dart';
+import 'package:getlery_client/utils/notification_helper.dart';
+import 'package:getlery_client/utils/screenshot_manger.dart';
 
 class SetController extends GetxController {
   final _screenshotList = <ScreenshotInfo>[].obs;
@@ -17,11 +19,15 @@ class SetController extends GetxController {
   RxInt autoDeleteMinutes = 0.obs;
   RxBool isPushNotificationEnabled = true.obs;
 
+  late NotificationHelper notificationHelper;
+  late ScreenshotManager screenshotManager;
+
   @override
   void onInit() {
     super.onInit();
     isDarkMode.value = Get.isDarkMode;
     selectedLanguage.value = Get.locale?.languageCode ?? 'en';
+    startAutoDeleteSchedule();
     // startScreenshotDetection();
   }
 
@@ -33,14 +39,20 @@ class SetController extends GetxController {
   //     print("Failed to start screenshot detection: '${e.message}'.");
   //   }
   // }
+// 자동 삭제 스케줄링 설정
+  void startAutoDeleteSchedule() {
+    final duration = Duration(
+        hours: autoDeleteHours.value, minutes: autoDeleteMinutes.value);
+    screenshotManager.startAutoDeleteSchedule(duration);
+  }
 
-  void onScreenshotDetected(ScreenshotInfo screenshotInfo) {
-    print("Screenshot detected");
-    if (isAutoDelete.value) {
-      _scheduleAutoDelete(screenshotInfo);
-    } else {
-      _showDeleteDialog(Get.context!, screenshotInfo);
-    }
+  // 자동 삭제 알림
+  void showAutoDeleteNotification() async {
+    await notificationHelper.showNotification(
+      title: 'File Cleanup',
+      body: 'Scheduled screenshots have been deleted',
+      isPushNotificationEnabled: isPushNotificationEnabled.value,
+    );
   }
 
   void toggleDarkMode() {

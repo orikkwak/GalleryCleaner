@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:getlery_client/utils/network_helper.dart';
 import 'package:http/http.dart' as http;
@@ -16,9 +17,11 @@ class ImageRepository {
   // 서버로 이미지 업로드
   Future<void> uploadImageToServer(File imageFile) async {
     var request = http.MultipartRequest(
-      'POST', Uri.parse('${_networkHelper.serverUrl}/upload'),
+      'POST',
+      Uri.parse('${_networkHelper.serverUrl}/upload'),
     );
-    request.files.add(await http.MultipartFile.fromPath('image', imageFile.path));
+    request.files
+        .add(await http.MultipartFile.fromPath('image', imageFile.path));
     final response = await request.send();
     if (response.statusCode != 200) {
       throw Exception('Failed to upload image to server');
@@ -42,6 +45,31 @@ class ImageRepository {
     );
     if (response.statusCode != 200) {
       throw Exception('Failed to delete image from server');
+    }
+  }
+
+  // 서버에서 삭제 예약 취소
+  Future<void> cancelImageDeletion(String imageId) async {
+    final response = await http.post(
+      Uri.parse('${_networkHelper.serverUrl}/images/cancel-delete/$imageId'),
+    );
+    if (response.statusCode != 200) {
+      throw Exception(
+          'Failed to cancel deletion for image on server. Status code: ${response.statusCode}');
+    }
+  }
+
+  // 서버에서 로컬로 삭제된 이미지를 복구
+  Future<List<Map<String, dynamic>>> fetchDeletedImages() async {
+    final response = await http.get(
+      Uri.parse('${_networkHelper.serverUrl}/images/deleted'),
+    );
+    if (response.statusCode == 200) {
+      return List<Map<String, dynamic>>.from(
+          jsonDecode(response.body) as List<dynamic>);
+    } else {
+      throw Exception(
+          'Failed to fetch deleted images from server. Status code: ${response.statusCode}');
     }
   }
 }

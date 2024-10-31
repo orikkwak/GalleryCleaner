@@ -1,6 +1,7 @@
 // 파일 위치: lib/services/image_service.dart
 
 import 'dart:io';
+import 'package:get/get.dart';
 import 'package:getlery_client/models/image_model.dart';
 import 'package:getlery_client/repositories/image_repository.dart';
 import 'package:getlery_client/utils/network_helper.dart';
@@ -75,6 +76,34 @@ class ImageService {
     }
   }
 
+// 이미지 삭제 예정 상태 업데이트
+  Future<void> updateImageDeletionStatus(
+      ImageModel image, bool isDeleteScheduled) async {
+    image.isDeleteScheduled = isDeleteScheduled;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? cachedData = prefs.getString('cached_images');
+
+    if (cachedData != null) {
+      List<dynamic> cachedImagesJson = jsonDecode(cachedData);
+      cachedImagesJson = cachedImagesJson.map((json) {
+        if (json['id'] == image.id) {
+          json['isDeleteScheduled'] = isDeleteScheduled;
+        }
+        return json;
+      }).toList();
+      await prefs.setString('cached_images', jsonEncode(cachedImagesJson));
+    }
+
+    // 서버에 업데이트 전송
+    if (await networkHelper.isServerConnected()) {
+      if (isDeleteScheduled) {
+        await _repository.scheduleImageDeletion(image.id);
+      } else {
+        await _repository.cancelImageDeletion(image.id);
+      }
+    }
+  }
+
   // 서버와 로컬에서 이미지 삭제 (중복 확인 포함)
   Future<void> deleteSelectedImages(List<ImageModel> images) async {
     final isConnected = await NetworkHelper().isServerConnected();
@@ -108,43 +137,55 @@ class ImageService {
     }
   }
 
-  // 카테고리 이름 업데이트
-  Future<void> updateCategoryName(String id, String newName) async {
-    // PUT 요청을 통해 서버의 카테고리 이름 업데이트
-    await networkHelper.putRequest(
-      '${networkHelper.categoryApiUrl}/$id',
-      {'name': newName},
-    );
+// 서버에서 삭제 예정 상태로 저장된 이미지를 로컬 캐시에 복구
+  Future<void> restoreDeletedImagesFromServer() async {
+    if (await networkHelper.isServerConnected()) {
+      // 서버에서 삭제 예정 상태의 이미지 목록을 가져옴
+      List<ImageModel> serverDeletedImages =
+          (await _repository.fetchDeletedImages())
+              .map((json) => ImageModel.fromJson(json))
+              .toList();
+
+      // 로컬 캐시에 저장된 이미지 목록을 가져옴
+      final prefs = await SharedPreferences.getInstance();
+      String? cachedData = prefs.getString('cached_images');
+      List<dynamic> cachedImagesJson =
+          cachedData != null ? jsonDecode(cachedData) : [];
+
+      // 서버에서 가져온 삭제 예정 이미지를 로컬 캐시에 추가하여 복구
+      for (var image in serverDeletedImages) {
+        // 이미 로컬 캐시에 존재하지 않는 이미지만 추가
+        if (!cachedImagesJson.any((cachedImg) => cachedImg['id'] == image.id)) {
+          cachedImagesJson.add(image.toJson());
+        }
+      }
+      Get.snackbar('Restored',
+          'Images scheduled for deletion on the server have been restored to local storage.');
+    }
   }
 
-  // 카테고리에 이미지 추가
-  Future<void> addImageToCategory(String categoryId, String imageUrl) async {
-    // POST 요청을 통해 서버의 카테고리에 이미지 추가
-    await networkHelper.postRequest(
-      '${networkHelper.categoryApiUrl}/$categoryId/add-image',
-      {'imageUrl': imageUrl},
-    );
+// 복구된 이미지를 로컬에 저장하는 메서드
+  Future<void> saveImageLocally(ImageModel image) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? cachedData = prefs.getString('cached_images');
+    List<dynamic> cachedImagesJson =
+        cachedData != null ? jsonDecode(cachedData) : [];
+    cachedImagesJson.add(image.toJson());
+    await prefs.setString('cached_images', jsonEncode(cachedImagesJson));
   }
 
   // 삭제 예정 이미지를 불러오는 메서드
   Future<List<ImageModel>> fetchScheduledImages() async {
-    // 여기에 실제로 삭제 예정 이미지를 불러오는 로직을 구현하세요.
-    // 예시로, 삭제 예정 상태가 true로 설정된 이미지들을 반환하도록 합니다.
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? cachedData = prefs.getString('cached_images');
+    if (cachedData == null) return [];
 
-    final List<ImageModel> scheduledImages = []; // 이 리스트에 삭제 예정 이미지를 추가하세요.
-
-    // 예시로 캐시에서 삭제 예정 이미지 정보를 불러오는 방식:
-    final prefs = await SharedPreferences.getInstance();
-    final keys = prefs.getKeys().where((key) => key.startsWith('scheduled_'));
-
-    for (var key in keys) {
-      final imageData = prefs.getString(key);
-      if (imageData != null) {
-        // `imageData`를 JSON 파싱하여 `ImageModel`로 변환
-        final image = ImageModel.fromJson(imageData as Map<String, dynamic>);
-        scheduledImages.add(image);
-      }
-    }
+    // 캐시에 저장된 이미지를 불러와서 삭제 예정 상태가 true인 이미지만 필터링
+    List<dynamic> cachedImagesJson = jsonDecode(cachedData);
+    List<ImageModel> scheduledImages = cachedImagesJson
+        .map((json) => ImageModel.fromJson(json))
+        .where((image) => image.isDeleteScheduled)
+        .toList();
 
     return scheduledImages;
   }

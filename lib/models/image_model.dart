@@ -10,9 +10,11 @@ class ImageModel {
   final AssetEntity assetEntity;
   final DateTime createdAt;
   Uint8List? _thumbnailData;
-  double? nimaScore; // NIMA 점수 필드 
+  double? nimaScore; // NIMA 점수 필드
   final String filePath; // 로컬 파일 경로 필드 추가 (문자열로 저장)
-  bool isDeleteScheduled; // 삭제 예정 상태 필드 추가
+  bool isDeleteScheduled; // 로컬 삭제 예약
+  bool isDeletedLocally; // 로컬에서 삭제 완료 (서버에서 삭제 예정)
+  List<String>? labels; // 이미지 라벨링 결과를 저장하는 필드 추가
 
   ImageModel({
     required this.id,
@@ -21,6 +23,8 @@ class ImageModel {
     this.nimaScore, // NIMA 점수 추가
     required this.filePath, // filePath 필수 매개변수로 변경
     this.isDeleteScheduled = false, // 기본값으로 false 설정
+    this.isDeletedLocally = false,
+    this.labels, // 라벨링 필드 추가
     Uint8List? thumbnailData,
   });
 
@@ -48,7 +52,9 @@ class ImageModel {
       ),
       nimaScore: json['nimaScore'], // NIMA 점수 추가
       filePath: json['filePath'] ?? '', // filePath 추가
+      labels: List<String>.from(json['labels'] ?? []), // 라벨 필드 추가
       isDeleteScheduled: json['isDeleteScheduled'] ?? false,
+      isDeletedLocally: json['isDeletedLocally'] ?? false,
     );
   }
 
@@ -74,6 +80,8 @@ class ImageModel {
       'nimaScore': nimaScore, // NIMA 점수 포함
       'filePath': filePath, // filePath 추가
       'isDeleteScheduled': isDeleteScheduled,
+      'isDeletedLocally': isDeletedLocally,
+      'labels': labels, // 라벨 필드 포함
     };
   }
 

@@ -21,8 +21,10 @@ class CategoryService extends GetConnect {
 
   // 카테고리 이름 업데이트
   Future<void> updateCategoryName(String id, String newName) async {
-    await networkHelper
-        .putRequest('${networkHelper.categoryApiUrl}/$id', {'name': newName});
+    await networkHelper.putRequest(
+      '${networkHelper.categoryApiUrl}/$id',
+      {'name': newName}, // name 필드를 업데이트
+    );
   }
 
   // 카테고리에 이미지 추가
