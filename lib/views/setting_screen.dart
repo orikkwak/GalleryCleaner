@@ -35,6 +35,40 @@ class SettingScreen extends StatelessWidget {
                       settingController.toggleAutoDelete();
                     },
                   )),
+              Obx(() {
+                if (settingController.isAutoDelete.value) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 10),
+                      const Text('Select Deletion Time',
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 10),
+                      ListTile(
+                        title: Text(
+                            'Delete screenshots at ${settingController.autoDeleteHours.value}:00'),
+                        trailing: Icon(Icons.access_time),
+                        onTap: () async {
+                          final selectedTime = await showTimePicker(
+                            context: context,
+                            initialTime: TimeOfDay(
+                              hour: settingController.autoDeleteHours.value,
+                              minute: 0,
+                            ),
+                          );
+                          if (selectedTime != null) {
+                            settingController
+                                .setAutoDeleteHour(selectedTime.hour);
+                          }
+                        },
+                      ),
+                    ],
+                  );
+                } else {
+                  return Container();
+                }
+              }),
               const SizedBox(height: 20),
               const Text('Notification Settings',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),

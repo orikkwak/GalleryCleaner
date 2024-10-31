@@ -110,7 +110,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                       height: double.infinity,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
-                        color: Colors.grey.shade300,
+                        color: const Color.fromARGB(142, 87, 87, 87),
                       ),
                       child: const Icon(Icons.image, size: 60),
                     ),

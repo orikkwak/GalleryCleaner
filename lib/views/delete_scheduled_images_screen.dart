@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:getlery_client/controllers/image_controller.dart';
+import 'package:getlery_client/models/screenshot_model.dart';
 import 'package:getlery_client/views/main_screen.dart';
 
 class ScheduledImagesScreen extends StatelessWidget {
@@ -47,7 +48,7 @@ class ScheduledImagesScreen extends StatelessWidget {
                     trailing: IconButton(
                       icon: const Icon(Icons.cancel),
                       onPressed: () {
-                        imageController.cancelDeletion(image);
+                        imageController.cancelDeletion(image as ScreenshotInfo);
                       },
                     ),
                   )),
@@ -60,7 +61,22 @@ class ScheduledImagesScreen extends StatelessWidget {
                 ),
               ),
               ...scheduledForServerDeletion.map((image) => ListTile(
-                    leading: Image.file(image.file, fit: BoxFit.cover),
+                    leading: Stack(
+                      children: [
+                        Image.file(image.file, fit: BoxFit.cover),
+                        Positioned(
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          child: Icon(
+                            Icons.download,
+                            color: Colors.white.withOpacity(0.7),
+                            size: 48,
+                          ),
+                        ),
+                      ],
+                    ),
                     title: const Text('Deleted from local storage'),
                     subtitle: Text(image.createdAt.toString()),
                   )),
