@@ -38,3 +38,14 @@ subprojects {
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
+
+configurations.all {
+    resolutionStrategy {
+        // 강제로 특정 버전 사용
+        force 'androidx.annotation:annotation:1.7.1'
+        force 'androidx.core:core:1.9.0'
+        force 'androidx.lifecycle:lifecycle-livedata:2.3.1'
+        force 'androidx.lifecycle:lifecycle-runtime:2.3.1'
+        force 'androidx.lifecycle:lifecycle-viewmodel:2.3.1'
+    }
+}

@@ -20,6 +20,7 @@ def flutterVersionName = localProperties.getProperty('flutter.versionName') ?: '
 android {
     namespace "com.example.getlery_client"
     compileSdkVersion 34  // compileSdk를 명확히 지정
+    buildToolsVersion "34.0.0"
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -37,7 +38,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.getlery_client"
-        minSdkVersion 29
+        minSdkVersion 23
         targetSdkVersion 34
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
@@ -45,21 +46,24 @@ android {
 
     buildTypes {
         release {
-            signingConfig signingConfigs.debug
+        signingConfig signingConfigs.debug
+        minifyEnabled false
+        shrinkResources false
         }
     }
-    lintOptions {
+    // buildFeatures를 추가해 주는 부분
+    buildFeatures {
+        buildConfig true  // buildConfig 사용 활성화
+    }
+
+    lint {
     baseline file("lint-baseline.xml")  // 기본 설정 파일로 사용할 lint-baseline.xml 지정
     abortOnError false  // 모든 lint 오류에 대해 빌드를 멈추지 않도록 설정
     disable 'NewApi', 'MissingTranslation', 'UnusedResources', 'ScopedStorage'  // NewApi 오류 무시
     checkReleaseBuilds false  // 릴리즈 빌드 시 lint 검사를 하지 않음
     }
-// buildFeatures를 추가해 주는 부분
-    buildFeatures {
-        buildConfig true  // buildConfig 사용 활성화
-    }
-}
 
+}
 flutter {
     source '../..'
 }
@@ -67,4 +71,7 @@ flutter {
 dependencies {
     implementation platform("com.google.firebase:firebase-bom:33.5.1")
     implementation "com.google.firebase:firebase-analytics"
+    implementation 'com.google.mlkit:barcode-scanning:17.0.0'
+    implementation 'com.google.mlkit:image-labeling:17.0.5'
+    implementation 'com.google.mlkit:pose-detection:17.0.0'
 }
