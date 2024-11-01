@@ -30,6 +30,19 @@ class _MainScreenState extends State<MainScreen> {
     initializeConnectionStatus();
   }
 
+  // [추가된 부분]
+  void _navigateToPage(int page) {
+    _pageController.jumpToPage(page);
+    _onPageChanged(page);
+  }
+
+  // 페이지 변경 함수
+  void _onPageChanged(int page) {
+    setState(() {
+      _currentPage = page;
+    });
+  }
+
   Future<void> initializeConnectionStatus() async {
     isConnected = await NetworkHelper().isServerConnected();
     setState(() {});
@@ -39,17 +52,6 @@ class _MainScreenState extends State<MainScreen> {
       await imageController.loadScheduledImages();
       setState(() {}); // 상태 업데이트를 통해 `hasScheduledImages` 반영
     }
-  }
-
-  void _onPageChanged(int page) {
-    setState(() {
-      _currentPage = page;
-    });
-  }
-
-  void _navigateToPage(int page) {
-    _pageController.jumpToPage(page);
-    _onPageChanged(page);
   }
 
   @override
@@ -77,7 +79,7 @@ class _MainScreenState extends State<MainScreen> {
                 currentPage: _currentPage,
                 onPageSelected: _navigateToPage, // 페이지 변경 함수
                 hasCategories: hasCategories,
-                hasScheduledImages: hasScheduledImages, // 오타 수정
+                hasScheduledImages: hasScheduledImages,
               ),
             Expanded(
               child: PageView(

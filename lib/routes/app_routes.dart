@@ -1,20 +1,22 @@
 import 'dart:io';
 import 'package:get/get.dart';
 import 'package:getlery_client/bindings/category_bindings.dart';
-import 'package:getlery_client/bindings/category_detail_bindings.dart';
-import 'package:getlery_client/bindings/delete_bindings.dart';
+import 'package:getlery_client/bindings/delete_dialog_bindings.dart';
 import 'package:getlery_client/bindings/group_bindings.dart';
+import 'package:getlery_client/bindings/group_grid_binding.dart';
 import 'package:getlery_client/bindings/image_bindings.dart';
+import 'package:getlery_client/bindings/main_content_bindings.dart';
 import 'package:getlery_client/bindings/main_screen_bindings.dart';
+import 'package:getlery_client/bindings/one_image_bindings.dart';
+import 'package:getlery_client/bindings/scheduled_images_bindings.dart';
 import 'package:getlery_client/bindings/set_bindings.dart';
-import 'package:getlery_client/controllers/category_controller.dart';
+import 'package:getlery_client/bindings/sort_option_bottom_sheet.dart';
+import 'package:getlery_client/bindings/zoomable_image_grid_bindings.dart';
 import 'package:getlery_client/controllers/group_controller.dart';
 import 'package:getlery_client/controllers/image_controller.dart';
 import 'package:getlery_client/controllers/selection_controller.dart';
-import 'package:getlery_client/controllers/set_controller.dart';
 import 'package:getlery_client/models/category_model.dart';
 import 'package:getlery_client/models/group_model.dart';
-import 'package:getlery_client/models/image_model.dart';
 import 'package:getlery_client/views/category_detail_screen.dart';
 import 'package:getlery_client/views/category_screen.dart';
 import 'package:getlery_client/views/delete_scheduled_images_screen.dart';
@@ -24,8 +26,8 @@ import 'package:getlery_client/views/setting_screen.dart';
 import 'package:getlery_client/views/group_viewer_screen.dart';
 import 'package:getlery_client/widgets/grids/group_grid.dart';
 import 'package:getlery_client/widgets/grids/zoomable_image_grid.dart';
+import 'package:getlery_client/widgets/main_content.dart';
 import 'package:getlery_client/widgets/sort_option_bottom_sheet.dart';
-import 'package:getlery_client/widgets/navigation_bar_widget.dart';
 import 'package:getlery_client/widgets/delete_dialog.dart';
 import 'package:getlery_client/widgets/image_loader.dart';
 
@@ -33,13 +35,13 @@ final List<GetPage> appRoutes = [
   // 메인 스크린 (앱 시작화면)
   GetPage(
     name: '/',
-    page: () => MainScreen(),
-    binding: MainScreenBinding(),
+    page: () => const MainScreen(),
+    binding: MainScreenBinding(), // 바인딩 추가
   ),
 
-  // 단일 이미지 뷰어 스크린
+  // OneImageScreen 라우트 추가
   GetPage(
-    name: '/image',
+    name: '/oneImage',
     page: () {
       final List<File> imageFileList =
           Get.arguments['imageFileList'] as List<File>;
@@ -50,24 +52,24 @@ final List<GetPage> appRoutes = [
         initialIndex: initialIndex,
       );
     },
-    binding: ImageBindings(),
+    binding: OneImageBinding(), // 바인딩 추가
   ),
 
-  // 설정 화면
+  // SettingScreen 라우트 추가
   GetPage(
     name: '/settings',
-    page: () => const SettingScreen(),
-    binding: SetBindings(),
+    page: () => SettingScreen(),
+    binding: SetBindings(), // 바인딩 추가
   ),
 
-  // 그룹 뷰어 스크린
+  // GroupViewerScreen 라우트 추가
   GetPage(
-    name: '/group',
+    name: '/groupViewer',
     page: () {
       final GroupModel group = Get.arguments['group'] as GroupModel;
       return GroupViewerScreen(group: group);
     },
-    binding: GroupBindings(),
+    binding: GroupBindings(), // 바인딩 추가
   ),
 
   // 정렬 옵션 바텀 시트
@@ -84,90 +86,54 @@ final List<GetPage> appRoutes = [
         groupController: groupController,
       );
     },
-    binding: BindingsBuilder(() {
-      Get.lazyPut(() => ImageController());
-      Get.lazyPut(() => GroupController());
-    }),
+    binding: SortOptionBinding(),
   ),
 
-  // 전체 카테고리를 표시하는 카테고리 목록 화면
+  // 카테고리 화면 라우트 추가
   GetPage(
     name: '/categories',
-    page: () =>
-        CategoryScreen(categories: Get.find<CategoryController>().categories),
+    page: () {
+      final List<Category> categories =
+          Get.arguments['categories'] as List<Category>;
+      return CategoryScreen(categories: categories);
+    },
     binding: CategoryBinding(),
   ),
 
-  // 특정 카테고리의 상세 화면
+  // 특정 카테고리 상세 화면 라우트 추가
   GetPage(
     name: '/categoryDetail',
     page: () {
-      final category = Get.arguments['category'] as Category;
+      final Category category = Get.arguments['category'] as Category;
       return CategoryDetailScreen(category: category);
     },
-    binding: CategoryDetailBinding(), // 새로운 바인딩 추가
   ),
 
-  // 삭제 예정 이미지 화면
+  // 삭제 예정 이미지 화면 라우트 추가
   GetPage(
     name: '/deleteScheduledImages',
     page: () => const ScheduledImagesScreen(),
-    binding: DeleteScheduledImagesBinding(),
+    binding: ScheduledImagesBinding(), // 바인딩 추가
   ),
 
-  // 네비게이션 바 위젯 추가
-  GetPage(
-    name: '/navigationBar',
-    page: () {
-      final int currentPage = Get.arguments['currentPage'] as int;
-      final dynamic Function(int) onPageSelected =
-          Get.arguments['onPageSelected'] as dynamic Function(int);
-      final bool hasCategories = Get.arguments['hasCategories'] as bool;
-      final bool hasScheduledImages =
-          Get.arguments['hasScheduledImages'] as bool;
-      return NavigationBarWidget(
-        currentPage: currentPage,
-        onPageSelected: onPageSelected,
-        hasCategories: hasCategories,
-        hasScheduledImages: hasScheduledImages,
-      );
-    },
-    binding: BindingsBuilder(() {
-      Get.lazyPut(() => SetController());
-    }),
-  ),
-
-  // 그룹 그리드 위젯 추가
+  // 그룹 그리드 화면 추가
   GetPage(
     name: '/groupGrid',
-    page: () {
-      Get.find<GroupController>();
-      return GroupGrid();
-    },
-    binding: BindingsBuilder(() {
-      Get.lazyPut(() => GroupController());
-    }),
+    page: () => const GroupGrid(),
+    binding: GroupGridBinding(),
   ),
 
-  // 줌 가능한 이미지 그리드 위젯 추가
+  // 줌 가능한 이미지 그리드 화면 추가
   GetPage(
     name: '/zoomableImageGrid',
-    page: () {
-      final List<ImageModel> images =
-          Get.arguments['images'] as List<ImageModel>;
-      final bool showScheduledOnly =
-          Get.arguments['showScheduledOnly'] as bool? ?? false;
-      return ZoomableImageGrid(
-        images: images,
-        showScheduledOnly: showScheduledOnly,
-      );
-    },
-    binding: BindingsBuilder(() {
-      Get.lazyPut(() => ImageController());
-    }),
+    page: () => ZoomableImageGrid(
+      images: Get.arguments['images'],
+      showScheduledOnly: Get.arguments['showScheduledOnly'] ?? false,
+    ),
+    binding: ZoomableImageGridBinding(),
   ),
 
-  // 이미지 로더 위젯 추가
+  // 이미지 로더 화면 추가
   GetPage(
     name: '/imageLoader',
     page: () {
@@ -175,22 +141,29 @@ final List<GetPage> appRoutes = [
           Get.arguments['imageFuture'] as Future<File?>;
       return ImageLoader(imageFuture: imageFuture);
     },
-    binding: BindingsBuilder(() {
-      Get.lazyPut(() => ImageController());
-    }),
   ),
 
-  // 삭제 다이얼로그 위젯 추가
+  // 삭제 다이얼로그 화면 추가
   GetPage(
     name: '/deleteDialog',
     page: () {
       final SelectionController selectionController =
-          Get.arguments['selectionController'] as SelectionController;
+          Get.find<SelectionController>();
       return DeleteDialog(selectionController: selectionController);
     },
+    binding: DeleteDialogBinding(), // 바인딩 추가
+  ),
+  // MainContent 라우트 추가
+  GetPage(
+    name: '/mainContent',
+    page: () => MainContent(imageController: Get.find<ImageController>()),
+    binding: MainContentBinding(), // 바인딩 추가
+  ),
+  GetPage(
+    name: '/scheduledImages',
+    page: () => const ScheduledImagesScreen(),
     binding: BindingsBuilder(() {
-      Get.lazyPut(() => SelectionController());
-      Get.lazyPut(() => ImageController());
+      ImageBindings().dependencies(); // 필요한 바인딩 등록
     }),
   ),
 ];

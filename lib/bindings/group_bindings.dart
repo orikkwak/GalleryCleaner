@@ -9,7 +9,7 @@ class GroupBindings extends Bindings {
   @override
   void dependencies() {
     // GroupController 및 SelectionController 주입
-    Get.lazyPut<GroupRepository>(() => GroupRepository());
+    // Get.lazyPut<GroupRepository>(() => GroupRepository());
     Get.lazyPut<GroupController>(() => GroupController());
     Get.lazyPut<SelectionController>(() => SelectionController());
   }

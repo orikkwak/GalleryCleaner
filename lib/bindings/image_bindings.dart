@@ -8,7 +8,7 @@ class ImageBindings extends Bindings {
   @override
   void dependencies() {
     // ImageRepository를 주입
-    Get.lazyPut<ImageRepository>(() => ImageRepository());
+    // Get.lazyPut<ImageRepository>(() => ImageRepository());
     Get.lazyPut<ImageController>(() => ImageController());
   }
 }

@@ -54,7 +54,10 @@ android {
     disable 'NewApi', 'MissingTranslation', 'UnusedResources', 'ScopedStorage'  // NewApi 오류 무시
     checkReleaseBuilds false  // 릴리즈 빌드 시 lint 검사를 하지 않음
     }
-
+// buildFeatures를 추가해 주는 부분
+    buildFeatures {
+        buildConfig true  // buildConfig 사용 활성화
+    }
 }
 
 flutter {

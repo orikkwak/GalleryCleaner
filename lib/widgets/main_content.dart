@@ -8,8 +8,7 @@ import 'package:getlery_client/widgets/grids/zoomable_image_grid.dart';
 class MainContent extends StatelessWidget {
   final ImageController imageController;
 
-  const MainContent({Key? key, required this.imageController})
-      : super(key: key);
+  const MainContent({super.key, required this.imageController});
 
   @override
   Widget build(BuildContext context) {
