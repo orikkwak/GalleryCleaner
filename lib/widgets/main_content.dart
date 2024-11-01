@@ -1,7 +1,4 @@
 // 파일 위치: lib/widgets/main_content.dart
-
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:getlery_client/controllers/image_controller.dart';

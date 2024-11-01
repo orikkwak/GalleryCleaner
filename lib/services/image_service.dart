@@ -76,7 +76,7 @@ class ImageService {
     }
   }
 
-// 이미지 삭제 예정 상태 업데이트
+  /// 이미지 삭제 예정 상태 업데이트
   Future<void> updateImageDeletionStatus(
       ImageModel image, bool isDeleteScheduled) async {
     image.isDeleteScheduled = isDeleteScheduled;
@@ -157,10 +157,16 @@ class ImageService {
         // 이미 로컬 캐시에 존재하지 않는 이미지만 추가
         if (!cachedImagesJson.any((cachedImg) => cachedImg['id'] == image.id)) {
           cachedImagesJson.add(image.toJson());
+          await saveImageLocally(image); // 로컬에 저장
         }
       }
+
+      // 로컬 캐시 갱신
+      await prefs.setString('cached_images', jsonEncode(cachedImagesJson));
       Get.snackbar('Restored',
           'Images scheduled for deletion on the server have been restored to local storage.');
+    } else {
+      Get.snackbar('Error', 'Failed to connect to the server');
     }
   }
 

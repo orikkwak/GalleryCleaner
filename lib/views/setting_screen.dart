@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:getlery_client/controllers/set_controller.dart';
+import 'package:getlery_client/services/settings_service.dart';
 
 class SettingScreen extends StatelessWidget {
   const SettingScreen({super.key});
@@ -81,14 +82,15 @@ class SettingScreen extends StatelessWidget {
                     },
                   )),
               const SizedBox(height: 20),
-              const Text('Display Settings',
+              const Text('Theme Mode',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
               Obx(() => SwitchListTile(
                     title: const Text('Dark Mode'),
-                    value: settingController.isDarkMode.value,
-                    onChanged: (value) {
-                      settingController.toggleDarkMode();
+                    value: settingController.themeMode.value == ThemeMode.dark,
+                    onChanged: (isDark) {
+                      settingController.setThemeMode(
+                          isDark ? ThemeMode.dark : ThemeMode.light);
                     },
                   )),
               const SizedBox(height: 20),
@@ -97,19 +99,21 @@ class SettingScreen extends StatelessWidget {
               const SizedBox(height: 10),
               Obx(() => ListTile(
                     title: const Text('Language'),
-                    trailing: DropdownButton<String>(
+                    trailing: DropdownButton<Language>(
                       value: settingController.selectedLanguage.value,
-                      onChanged: (newValue) {
-                        settingController.changeLanguage(newValue!);
+                      onChanged: (Language? newValue) {
+                        if (newValue != null) {
+                          settingController.setLanguage(newValue);
+                        }
                       },
-                      items: ['en', 'ko']
-                          .map<DropdownMenuItem<String>>((value) =>
-                              DropdownMenuItem<String>(
-                                value: value,
-                                child:
-                                    Text(value == 'en' ? 'English' : 'Korean'),
-                              ))
-                          .toList(),
+                      items: Language.values
+                          .map<DropdownMenuItem<Language>>((value) {
+                        return DropdownMenuItem<Language>(
+                          value: value,
+                          child: Text(
+                              value == Language.english ? 'English' : 'Korean'),
+                        );
+                      }).toList(),
                     ),
                   )),
             ],

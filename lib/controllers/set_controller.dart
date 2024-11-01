@@ -11,8 +11,8 @@ class SetController extends GetxController {
   late NotificationHelper notificationHelper;
   late ScreenshotManager screenshotManager;
 
-  RxBool isDarkMode = false.obs;
-  RxString selectedLanguage = 'kr'.obs;
+  Rx<AppThemeMode> themeMode = AppThemeMode.light.obs;
+  Rx<Language> selectedLanguage = Language.english.obs;
   RxBool isAutoDelete = false.obs;
   RxInt autoDeleteHours = 22.obs; // 기본 삭제 시간 설정
   RxInt autoDeleteMinutes = 0.obs;
@@ -22,50 +22,62 @@ class SetController extends GetxController {
   void onInit() {
     super.onInit();
     loadSettings(); // 설정을 로드하면서 컨트롤러 초기화
-    screenshotManager = ScreenshotManager(
-      settingsService: settingsService,
-      notificationHelper: notificationHelper,
-    );
   }
 
   Future<void> loadSettings() async {
-    isDarkMode.value = Get.isDarkMode;
-    selectedLanguage.value = Get.locale?.languageCode ?? 'en';
-    // 자동 삭제 시간을 시간과 분 단위로 가져오기
+    // Dark Mode 설정 불러오기
+    themeMode.value = await settingsService.getThemeMode();
+    selectedLanguage.value = await settingsService.getLanguage();
+    isAutoDelete.value = await settingsService.getAutoDeleteStatus();
+    isPushNotificationEnabled.value =
+        await settingsService.getPushNotificationStatus();
+
     final cleanupInterval = await settingsService.getCleanupInterval();
     autoDeleteHours.value = cleanupInterval.inHours;
-    autoDeleteMinutes.value = cleanupInterval.inMinutes.remainder(60);
-
-    // 초기 설정된 시간에 스크린샷 모니터링 시작
-    screenshotManager.updateCheckHour(autoDeleteHours.value);
   }
 
-  void setAutoDeleteHour(int hour) {
+// 자동 삭제 시간 및 분 설정 업데이트
+  void setAutoDeleteHour(int hour, [int minutes = 0]) {
     autoDeleteHours.value = hour;
-    settingsService.setAutoDeleteHour(hour);
-    screenshotManager.updateCheckHour(hour); // 변경된 시간으로 업데이트
+    autoDeleteMinutes.value = minutes;
+    settingsService.setCleanupInterval(hour, minutes);
+    updateAutoDeleteSchedule(); // 변경된 시간에 맞춰 스케줄 업데이트
+  }
+
+  // 자동 삭제 스케줄 설정
+  void updateAutoDeleteSchedule() {
+    screenshotManager.updateCheckHour(
+      autoDeleteHours.value,
+      autoDeleteMinutes.value,
+    );
   }
 
   void toggleAutoDelete() {
     isAutoDelete.value = !isAutoDelete.value;
+    settingsService.setAutoDeleteStatus(isAutoDelete.value);
     if (isAutoDelete.value) {
-      screenshotManager.updateCheckHour;
+      screenshotManager.updateCheckHour(
+          autoDeleteHours.value, autoDeleteMinutes.value);
     } else {
       screenshotManager.stopMonitoring();
     }
   }
 
-  void toggleDarkMode() {
-    isDarkMode.value = !isDarkMode.value;
-    Get.changeThemeMode(isDarkMode.value ? ThemeMode.dark : ThemeMode.light);
+  void setThemeMode(ThemeMode mode) {
+    themeMode.value = mode as AppThemeMode;
+    settingsService.setThemeMode(mode as AppThemeMode);
+    Get.changeThemeMode(
+        mode == ThemeMode.dark ? ThemeMode.dark : ThemeMode.light);
   }
 
-  void changeLanguage(String languageCode) {
-    selectedLanguage.value = languageCode;
-    Get.updateLocale(Locale(languageCode));
+  void setLanguage(Language language) {
+    selectedLanguage.value = language;
+    settingsService.setLanguage(language);
+    Get.updateLocale(Locale(language == Language.korean ? 'ko' : 'en'));
   }
 
   void togglePushNotification() {
     isPushNotificationEnabled.value = !isPushNotificationEnabled.value;
+    settingsService.setPushNotificationStatus(isPushNotificationEnabled.value);
   }
 }

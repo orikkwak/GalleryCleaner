@@ -2,10 +2,13 @@
 
 import 'package:get/get.dart';
 import 'package:getlery_client/controllers/set_controller.dart';
+import 'package:getlery_client/services/settings_service.dart';
 
 class SetBindings extends Bindings {
   @override
   void dependencies() {
-    Get.put(SetController()); // Set 컨트롤러 주입
+    // SettingsService를 주입
+    Get.lazyPut<SettingsService>(() => SettingsService());
+    Get.lazyPut<SetController>(() => SetController());
   }
 }

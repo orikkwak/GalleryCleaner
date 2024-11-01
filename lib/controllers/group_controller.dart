@@ -22,7 +22,20 @@ class GroupController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    loadCachedGroups(); // 캐시된 그룹 로드
     fetchGroups(); // 초기 로딩 시 그룹을 가져옴
+  }
+
+// 캐시된 그룹 로딩
+  Future<void> loadCachedGroups() async {
+    try {
+      List<GroupModel> cachedGroups = await _groupService.loadGroupsFromCache();
+      if (cachedGroups.isNotEmpty) {
+        groups.assignAll(cachedGroups);
+      }
+    } catch (e) {
+      print('Failed to load cached groups: $e');
+    }
   }
 
   Future<void> fetchGroups() async {
@@ -40,11 +53,16 @@ class GroupController extends GetxController {
         for (var group in groups) {
           group.selectRepresentativeByNima();
         }
+        // 그룹을 서버에 동기화
+        await _groupService.syncGroupsWithServer(groups);
       } else {
         for (var group in groups) {
           group.selectRepresentativeByPixels();
         }
       }
+
+      // 그룹을 캐시에 저장
+      await _groupService.saveGroupsToCache(groups);
     } catch (e) {
       if (!isSnackbarShown.value) {
         isSnackbarShown.value = true;

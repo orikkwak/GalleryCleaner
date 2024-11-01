@@ -2,8 +2,6 @@
 
 import 'dart:async';
 import 'dart:io';
-import 'package:get/get.dart';
-import 'package:getlery_client/controllers/image_controller.dart';
 import 'package:getlery_client/models/screenshot_model.dart';
 import 'package:getlery_client/services/settings_service.dart';
 import 'package:getlery_client/utils/notification_helper.dart';
@@ -32,19 +30,18 @@ class ScreenshotManager {
     _monitoringTimer?.cancel();
   }
 
-  // 매일 지정된 시간에 체크하는 스케줄 설정
-  void updateCheckHour(int hour) {
-    _monitoringTimer?.cancel(); // 기존 타이머 취소
-    final now = DateTime.now(); // 새로운 확인 시간으로 모니터링 시작
-    final nextCheck = DateTime(now.year, now.month, now.day, hour);
+  // 매일 지정된 시간에 체크하는 스케줄 설정// 매일 지정된 시간과 분에 체크하는 스케줄 설정
+  void updateCheckHour(int hour, int minute) {
+    stopMonitoring(); // 기존 타이머 취소
+    final now = DateTime.now();
+    final nextCheck = DateTime(now.year, now.month, now.day, hour, minute);
     final durationUntilNextCheck = nextCheck.isAfter(now)
         ? nextCheck.difference(now)
         : nextCheck.add(const Duration(days: 1)).difference(now);
+
     _monitoringTimer = Timer(durationUntilNextCheck, () async {
-      // 다음 체크 시간에 스크린샷 확인 실행
       await _checkScreenshots();
-      performAutoDelete(); // 지정된 시간에 도달하면 performAutoDelete 실행
-      updateCheckHour(hour); // 하루 뒤 다시 체크
+      updateCheckHour(hour, minute); // 하루 뒤 다시 체크
     });
   }
 
@@ -67,24 +64,6 @@ class ScreenshotManager {
     }
   }
 
-  // 스크린샷을 삭제하고 목록에서 제거
-  void performAutoDelete() {
-    if (_screenshotList.isNotEmpty) {
-      for (var screenshot in List<ScreenshotInfo>.from(_screenshotList)) {
-        deleteScreenshot(screenshot.file);
-        Get.find<ImageController>()
-            .updateImageDeletionStatus(screenshot.file as ScreenshotInfo, true);
-        _screenshotList.remove(screenshot);
-      }
-      _screenshotList.clear(); // 삭제 완료 후 리스트 초기화
-      notificationHelper.showNotification(
-        title: 'File Cleanup',
-        body: 'Scheduled screenshots have been deleted.',
-        isPushNotificationEnabled: true,
-      );
-    }
-  }
-
 // 스크린샷 추가 및 삭제 전 알림 예약
   Future<void> addScreenshot(ScreenshotInfo screenshotInfo) async {
     _screenshotList.add(screenshotInfo);
@@ -104,20 +83,5 @@ class ScreenshotManager {
         isPushNotificationEnabled: true,
       );
     });
-  }
-
-  // 개별 스크린샷 삭제
-  void deleteScreenshot(File screenshotFile) {
-    if (screenshotFile.existsSync()) {
-      screenshotFile.deleteSync();
-      print("Screenshot auto-deleted: ${screenshotFile.path}");
-    }
-  }
-
-  // 개별 삭제 예정 취소 메서드
-  void cancelDeletion(ScreenshotInfo screenshot) {
-    _screenshotList.remove(screenshot);
-    Get.find<ImageController>()
-        .updateImageDeletionStatus(screenshot, false); // 뷰에서 업데이트 반영
   }
 }

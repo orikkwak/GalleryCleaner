@@ -1,6 +1,7 @@
 // 파일 위치: lib/controllers/image_controller.dart
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:get/get.dart';
 import 'package:getlery_client/controllers/category_controller.dart';
@@ -12,6 +13,7 @@ import 'package:getlery_client/services/image_service.dart';
 import 'package:getlery_client/utils/network_helper.dart';
 import 'package:getlery_client/utils/notification_helper.dart';
 import 'package:getlery_client/utils/screenshot_manger.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ImageController extends GetxController {
   final ImageService _imageService = ImageService();
@@ -27,7 +29,8 @@ class ImageController extends GetxController {
   int _currentPage = 0; // 페이징 인덱스
   late NetworkHelper networkHelper;
   late ImageRepository _repository;
-  final RxList<ScreenshotInfo> scheduledForDeletion = RxList<ScreenshotInfo>();
+  final RxList<ImageModel> scheduledForDeletion =
+      RxList<ImageModel>(); // ImageModel로 타입 통일
 
   @override
   void onInit() {
@@ -50,21 +53,50 @@ class ImageController extends GetxController {
     }
   }
 
-// // 스크린샷 폴더 감지 및 삭제 예약
-//   void startScheduledScreenshotCheck() {
-//     final interval = Duration(hours: 1); // 예: 1시간마다
-//     screenshotManager.startAutoDeleteSchedule(interval);
-//   }
+  /// 삭제 예정 취소
+  Future<void> cancelDeletion(ImageModel image) async {
+    scheduledForDeletion.remove(image); // 삭제 예정에서 제거
+    await updateImageDeletionStatus(
+        image, false); // 삭제 상태를 false로 업데이트하고 서버 및 캐시 동기화
+    Get.snackbar('Canceled', 'Screenshot deletion has been canceled.');
+  }
 
-// 삭제 예정 상태 업데이트
-  void updateImageDeletionStatus(
-      ScreenshotInfo screenshot, bool isDeleteScheduled) {
-    if (isDeleteScheduled) {
-      scheduledForDeletion.add(screenshot);
-    } else {
-      scheduledForDeletion.remove(screenshot); // 삭제 예정 취소 시 리스트에서 제거
+  // 선택된 이미지 삭제 후 목록 새로고침
+  Future<void> deleteSelectedImages(List<ImageModel> selectedImages) async {
+    for (var image in selectedImages) {
+      await updateImageDeletionStatus(
+          image, true); // 삭제 예정 상태로 업데이트하고 서버와 캐시 동기화
     }
-    scheduledForDeletion.refresh(); // 뷰 업데이트
+    await _imageService.deleteSelectedImages(selectedImages);
+    images.removeWhere((img) => selectedImages.contains(img));
+    await fetchNextPage();
+  }
+
+// 이미지 삭제 예정 상태 업데이트
+  Future<void> updateImageDeletionStatus(
+      ImageModel image, bool isDeleteScheduled) async {
+    image.isDeleteScheduled = isDeleteScheduled;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? cachedData = prefs.getString('cached_images');
+
+    if (cachedData != null) {
+      List<dynamic> cachedImagesJson = jsonDecode(cachedData);
+      cachedImagesJson = cachedImagesJson.map((json) {
+        if (json['id'] == image.id) {
+          json['isDeleteScheduled'] = isDeleteScheduled;
+        }
+        return json;
+      }).toList();
+      await prefs.setString('cached_images', jsonEncode(cachedImagesJson));
+    }
+// 서버에 업데이트 전송
+    if (await networkHelper.isServerConnected()) {
+      if (isDeleteScheduled) {
+        await _repository.scheduleImageDeletion(image.id);
+      } else {
+        await _repository.cancelImageDeletion(image.id);
+      }
+    }
   }
 
   // ImageService에 있는 복구 로직을 통해 서버에서 삭제 예정인 이미지를 가져와 복구하는 메서드
@@ -78,7 +110,9 @@ class ImageController extends GetxController {
 
       for (var image in serverDeletedImages) {
         images.add(image);
-        _imageService.saveImageLocally(image); // 로컬에 저장
+        await _imageService.saveImageLocally(image); // 로컬에 저장
+        updateImageDeletionStatus(
+            image as ImageModel, false); // 삭제 예정 상태를 false로 업데이트
       }
       loadScheduledImages(); // 복구된 이미지 다시 로드
       Get.snackbar(
@@ -86,9 +120,10 @@ class ImageController extends GetxController {
     } else {
       Get.snackbar('Error', 'Failed to connect to the server');
     }
+    await fetchNextPage();
   }
 
-// 삭제 상태에 따른 이미지 로드 및 구분
+  // 삭제 상태에 따른 이미지 로드 및 구분
   Future<void> loadScheduledImages() async {
     try {
       scheduledForLocalDeletion.clear();
@@ -101,23 +136,11 @@ class ImageController extends GetxController {
           scheduledForServerDeletion.add(image); // 서버 삭제 예정
         }
       }
+      scheduledForLocalDeletion.refresh();
+      scheduledForServerDeletion.refresh();
     } catch (e) {
       Get.snackbar('Error', 'Failed to load scheduled images: $e');
     }
-  }
-
-// 삭제 예정 취소
-  void cancelDeletion(ScreenshotInfo screenshot) {
-    cancelDeletion(screenshot); // 스크린샷 매니저에서도 제외
-    scheduledForDeletion.remove(screenshot);
-    Get.snackbar('Canceled', 'Screenshot deletion has been canceled.');
-  }
-
-  // 선택된 이미지 삭제 후 목록 새로고침
-  Future<void> deleteSelectedImages(List<ImageModel> selectedImages) async {
-    await _imageService.deleteSelectedImages(selectedImages);
-    images.removeWhere((img) => selectedImages.contains(img));
-    await fetchNextPage();
   }
 
   // 페이징을 통한 최신 이미지 불러오기 및 서버 업로드
